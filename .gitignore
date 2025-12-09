@@ -39,6 +39,7 @@ bin/
 *.cf
 *.json
 *.vcd
+.output/
 !tester/src/test/resources/*.vhd
 
 
