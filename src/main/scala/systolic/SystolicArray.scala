@@ -101,7 +101,7 @@ class SystolicArray[T <: Data](
     new ProcessingElement(
       index = index,
       portEnableMask = portEnableMask,
-      arrayConfig = arrayConfig,
+      dataflow = arrayConfig.dataflow
     )(arithmetic, portType)
 
   }
@@ -171,7 +171,7 @@ class SystolicArray[T <: Data](
 
         for{
           r <- 1 until  arrayConfig.row
-          c <- 1 until  arrayConfig.col
+          c <- 0 until  arrayConfig.col
         } {
           pes(r)(c).io.inputB := pes(r-1)(c).io.outputB
         }
@@ -215,6 +215,12 @@ class SystolicArray[T <: Data](
     arrayConfig.dataflow match {
       case Dataflow.ReuseA =>
 
+        val deskewBuffer = new SkewBuffer(
+          inputType = portType.createSystolicOutputTypeC,
+          delayDepth = arrayConfig.row,
+          isMinDepthFirst = false
+        )
+
         for {
           r <- 0 until arrayConfig.row
           c <- 1 until arrayConfig.col
@@ -222,10 +228,19 @@ class SystolicArray[T <: Data](
           pes(r)(c).io.inputC := pes(r)(c-1).io.outputC
         }
 
-        for (r <- 0 until arrayConfig.row)
-          io.outputC(r) := pes(r)(arrayConfig.col-1).io.outputC
+        for (r <- 0 until arrayConfig.row) {
+          deskewBuffer.io.input(r) := pes(r)(arrayConfig.col -1).io.outputC
+          io.outputC(r) := deskewBuffer.io.output(r)
+        }
 
       case Dataflow.ReuseB =>
+
+        val deskewBuffer = new SkewBuffer(
+          inputType = portType.createSystolicOutputTypeC,
+          delayDepth = arrayConfig.col,
+          isMinDepthFirst = false
+        )
+
         for {
           r <- 1 until arrayConfig.row
           c <- 0 until arrayConfig.col
@@ -233,20 +248,17 @@ class SystolicArray[T <: Data](
           pes(r)(c).io.inputC := pes(r-1)(c).io.outputC
         }
 
-        for (c <- 0 until arrayConfig.col)
-          io.outputC(c) := pes(arrayConfig.row -1)(c).io.outputC
+        for (c <- 0 until arrayConfig.col) {
+//          io.outputC(c) := pes(arrayConfig.row -1)(c).io.outputC
+          deskewBuffer.io.input(c) := pes(arrayConfig.row-1)(c).io.outputC
+          io.outputC(c) := deskewBuffer.io.output(c)
+        }
 
       case Dataflow.ReuseC =>
         for {
           r <- 0 until arrayConfig.row
           c <- 0 until arrayConfig.col
         } {
-
-          // Connect outputs to io.outputC
-          if (isOutputPosition(r, c)) {
-            val outputIndex = getOutputIndex(r, c)
-            io.outputC(outputIndex) := pes(r)(c).io.outputC
-          }
 
           // Connect diagonal PE connections
           if (canConnectDiagonally(r, c)) {
@@ -256,8 +268,22 @@ class SystolicArray[T <: Data](
             targetPe.io.inputC := currentPe.io.outputC
           }
 
-        }
 
+//          if (isOutputPosition(r, c)) {
+//            val outputIndex = getOutputIndex(r, c)
+//            io.outputC(outputIndex) := pes(r)(c).io.outputC
+//          }
+
+          val deskewBuffer = new DeskewBufferReuseC(portType.createSystolicOutputTypeC, arrayConfig)
+
+          if (isOutputPosition(r, c)) {
+            val outputIndex = getOutputIndex(r, c)
+            deskewBuffer.io.input(outputIndex) := pes(r)(c).io.outputC
+            io.outputC(outputIndex) := deskewBuffer.io.output(outputIndex)
+          }
+
+
+        }
     }
   }
 

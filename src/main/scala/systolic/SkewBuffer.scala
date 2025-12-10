@@ -6,6 +6,7 @@ import spinal.lib.Delay
 class SkewBuffer [T <: Data](
                             val inputType: T,
                             val delayDepth : Int,
+                            val isMinDepthFirst: Boolean = true
 ) extends Component {
 
   val io = new Bundle {
@@ -13,8 +14,15 @@ class SkewBuffer [T <: Data](
     val output = out Vec(HardType(inputType), delayDepth)
   }
 
-  for ( i <- 0 until delayDepth){
-    io.output(i) := Delay(io.input(i), delayDepth + 1)
+  if(isMinDepthFirst){
+    for ( i <- 0 until delayDepth){
+      io.output(i) := Delay(io.input(i), i + 1)
+    }
+  } else {
+    for( i <- 0 until delayDepth ){
+      io.output(i) := Delay(io.input(i), delayDepth -i)
+    }
   }
+
 
 }

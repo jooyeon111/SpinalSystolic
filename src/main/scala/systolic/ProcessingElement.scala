@@ -1,11 +1,53 @@
 package systolic
 
 import spinal.core._
+import systolic.IntegerArithmetic._
+
+object ProcessingElement {
+
+  def apply(dataflow: Dataflow.Value): ProcessingElement[SInt] = {
+
+    val defaultIndex = ProcessingElementIndex(
+      peRowIndex = 0,
+      peColIndex = 0,
+    )
+
+    val portEnableMask = PortEnableMask(
+      withOutputPortA = true,
+      withOutputPortB = true,
+      withInputPortC = true
+    )
+
+    implicit val arithmetic: Arithmetic[SInt] = sIntArithmetic
+
+    val arrayConfig = SystolicArrayConfig(
+      1,
+      1,
+      dataflow,
+      IntegerConfig(
+        IntegerType.SignedInteger,
+        PortBitWidthInfo(8, 8)
+      )
+    )
+
+    implicit val portType: PortTypeProvider[SInt] = new SignedPortTypeProvider(
+      arrayConfig = arrayConfig,
+      bitWidthInputA = 8,
+      bitWidthInputB = 8,
+      bitWidthSystolicOutputC = Some(32)
+    )
+
+    new ProcessingElement[SInt](defaultIndex, portEnableMask, dataflow)(arithmetic, portType)
+
+  }
+
+}
 
 class ProcessingElement[T <: Data](
                                   val index: ProcessingElementIndex,
                                   val portEnableMask: PortEnableMask,
-                                  val arrayConfig: SystolicArrayConfig,
+//                                  val arrayConfig: SystolicArrayConfig,
+                                  val dataflow: Dataflow.Value,
                                   )(
                                   implicit val arithmetic: Arithmetic[T],
                                   implicit val portType: PortTypeProvider[T],
@@ -19,10 +61,10 @@ class ProcessingElement[T <: Data](
       portType.createPeInputTypeC(index = index)
     }
 
-    val inputCaptureEnableA = (arrayConfig.dataflow == Dataflow.ReuseA) generate {in Bool()}
-    val inputCaptureEnableB = (arrayConfig.dataflow == Dataflow.ReuseB) generate {in Bool()}
-    val outputCaptureEnableC = (arrayConfig.dataflow == Dataflow.ReuseC) generate {in Bool()}
-    val resetPartialC = (arrayConfig.dataflow == Dataflow.ReuseC) generate in {Bool()}
+    val inputCaptureEnableA = (dataflow == Dataflow.ReuseA) generate {in Bool()}
+    val inputCaptureEnableB = (dataflow == Dataflow.ReuseB) generate {in Bool()}
+    val outputCaptureEnableC = (dataflow == Dataflow.ReuseC) generate {in Bool()}
+    val resetPartialC = (dataflow == Dataflow.ReuseC) generate in {Bool()}
 
     val outputA = portEnableMask.withOutputPortA generate out (portType.createInputTypeA)
     val outputB = portEnableMask.withOutputPortB generate out (portType.createInputTypeB)
@@ -50,7 +92,7 @@ class ProcessingElement[T <: Data](
     arithmetic.multiply(inputA, inputB)
   }
 
-  arrayConfig.dataflow match {
+  dataflow match {
     case Dataflow.ReuseA =>
       buildReuseA()
     case Dataflow.ReuseB =>
@@ -76,11 +118,11 @@ class ProcessingElement[T <: Data](
   private def buildReuseB(): Unit = {
     val capturedB = captureInput(io.inputB, io.inputCaptureEnableB, portType.zeroInputB)
 
-    if(portEnableMask.withOutputPortB)
-      io.outputB := capturedB
-
     if(portEnableMask.withOutputPortA)
       io.outputA := registerInput(io.inputA, portType.zeroInputB)
+
+    if(portEnableMask.withOutputPortB)
+      io.outputB := capturedB
 
     val product = multiply(io.inputA, capturedB)
     io.outputC := addInputC(product)
@@ -88,6 +130,7 @@ class ProcessingElement[T <: Data](
   }
 
   private def buildReuseC(): Unit = {
+
     if (portEnableMask.withOutputPortA)
       io.outputA := registerInput(io.inputA, portType.zeroInputA)
 
@@ -102,7 +145,6 @@ class ProcessingElement[T <: Data](
     val accumulatedValue = Mux(io.resetPartialC, product, arithmetic.addResize(product, partialSum, portType.createPeOutputTypeC(index).getBitsWidth))
     partialSum := accumulatedValue
 
-//    io.outputC :=  Mux(io.outputCaptureEnableC, partialSum, io.inputC)
     if(portEnableMask.withInputPortC){
       io.outputC := Mux(io.outputCaptureEnableC, partialSum, io.inputC)
     } else {

@@ -29,7 +29,8 @@ object Main extends App {
 
   SpinalConfig(
     targetDirectory = "output",
-    defaultClockDomainFrequency = FixedFrequency(100 MHz)
+    defaultClockDomainFrequency = FixedFrequency(100 MHz),
+    defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC, resetActiveLevel = HIGH)
   ).generateVerilog(
     SystolicArray(config)
   )

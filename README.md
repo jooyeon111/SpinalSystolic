@@ -1,4 +1,4 @@
-# Systolic Array
+# Spinal Systolic
 
 A configurable Systolic Array hardware implementation using SpinalHDL.
 
