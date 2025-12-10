@@ -2,7 +2,34 @@ package systolic
 
 import spinal.core._
 import systolic.IntegerArithmetic._
-
+/**
+ * Systolic array for GEMM
+ *
+ *
+ * Supports three dataflow types:
+ *  - '''ReuseA (Input Stationary)''': Input matrix A remains in PEs
+ *  - '''ReuseB (Weight Stationary)''': Weight matrix B remains in PEs
+ *  - '''ReuseC (Output Stationary)''': Output matrix C remains in PEs
+ *
+ * @example {{{
+ * val config = SystolicArrayConfig(
+ *   row = 8,
+ *   col = 8,
+ *   dataflow = Dataflow.ReuseA,
+ *   integerConfig = IntegerConfig(
+ *     IntegerType.SignedInteger,
+ *     PortBitWidthInfo(8, 8)
+ *   )
+ * )
+ * val array = SystolicArray(config)
+ * }}}
+ *
+ * @param arrayConfig Configuration for systolic array dimensions and dataflow
+ * @param arithmetic Arithmetic operations for type T (multiply, add, etc.)
+ * @param portType Provider for creating port types with appropriate bit widths
+ * @tparam T Data type (SInt or UInt)
+ *
+ */
 object SystolicArray {
 
   def apply(arrayConfig: SystolicArrayConfig): Component = {
@@ -255,6 +282,9 @@ class SystolicArray[T <: Data](
         }
 
       case Dataflow.ReuseC =>
+
+        val deskewBuffer = new DeskewBufferReuseC(portType.createSystolicOutputTypeC, arrayConfig)
+
         for {
           r <- 0 until arrayConfig.row
           c <- 0 until arrayConfig.col
@@ -268,14 +298,6 @@ class SystolicArray[T <: Data](
             targetPe.io.inputC := currentPe.io.outputC
           }
 
-
-//          if (isOutputPosition(r, c)) {
-//            val outputIndex = getOutputIndex(r, c)
-//            io.outputC(outputIndex) := pes(r)(c).io.outputC
-//          }
-
-          val deskewBuffer = new DeskewBufferReuseC(portType.createSystolicOutputTypeC, arrayConfig)
-
           if (isOutputPosition(r, c)) {
             val outputIndex = getOutputIndex(r, c)
             deskewBuffer.io.input(outputIndex) := pes(r)(c).io.outputC
@@ -287,6 +309,7 @@ class SystolicArray[T <: Data](
     }
   }
 
+  //TODO add comments
   private def getOutputIndex(r: Int, c: Int): Int = {
     if (r == 0 && c == 0) {
       // First element

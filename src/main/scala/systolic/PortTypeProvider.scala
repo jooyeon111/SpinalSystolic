@@ -13,7 +13,7 @@ trait PortTypeProvider [T <: Data] {
 
   final def zeroInputA(implicit arithmetic: Arithmetic[T]): T = arithmetic.zero(createInputTypeA.getBitsWidth)
   final def zeroInputB(implicit arithmetic: Arithmetic[T]): T = arithmetic.zero(createInputTypeB.getBitsWidth)
-  final def zeoMultOutput(implicit arithmetic: Arithmetic[T]): T = arithmetic.zero(createMultOutputType.getBitsWidth)
+  final def zeroMultOutput(implicit arithmetic: Arithmetic[T]): T = arithmetic.zero(createMultOutputType.getBitsWidth)
   final def zeroPeInputTypeC(index: ProcessingElementIndex)(implicit arithmetic: Arithmetic[T]): T  =
     arithmetic.zero(createPeInputTypeC(index).getBitsWidth)
   final def zeroPeOutputTypeC(index: ProcessingElementIndex)(implicit arithmetic: Arithmetic[T]): T  =

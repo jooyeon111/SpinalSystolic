@@ -2,7 +2,35 @@ package systolic
 
 import spinal.core._
 import systolic.IntegerArithmetic._
-
+/**
+ * Processing Element (PE) for systolic array computation.
+ *
+ * Each PE performs multiply-accumulate operations with different behaviors
+ * based on the dataflow type:
+ *
+ * '''ReuseA''': Captures input A, registers input B
+ * {{{
+ *   outputC = inputA_captured * inputB_flowing + inputC
+ * }}}
+ *
+ * '''ReuseB''': Registers input A, captures input B
+ * {{{
+ *   outputC = inputA_flowing * inputB_captured + inputC
+ * }}}
+ *
+ * '''ReuseC''': Accumulates partial sums
+ * {{{
+ *   partialSum = partialSum + (inputA * inputB)
+ *   outputC = resetPartialC ? (inputA * inputB) : partialSum
+ * }}}
+ *
+ * @param index Position in systolic array (row, column)
+ * @param portEnableMask Controls which I/O ports are enabled
+ * @param dataflow Dataflow architecture type
+ * @param arithmetic Implicit arithmetic operations provider
+ * @param portType Implicit port type provider
+ * @tparam T Data type for computation
+ */
 object ProcessingElement {
 
   def apply(dataflow: Dataflow.Value): ProcessingElement[SInt] = {
@@ -119,7 +147,7 @@ class ProcessingElement[T <: Data](
     val capturedB = captureInput(io.inputB, io.inputCaptureEnableB, portType.zeroInputB)
 
     if(portEnableMask.withOutputPortA)
-      io.outputA := registerInput(io.inputA, portType.zeroInputB)
+      io.outputA := registerInput(io.inputA, portType.zeroInputA)
 
     if(portEnableMask.withOutputPortB)
       io.outputB := capturedB

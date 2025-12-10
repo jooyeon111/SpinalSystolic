@@ -2,8 +2,8 @@ package systolic
 
 import spinal.core._
 import spinal.core.sim._
-import systolic.IntegerArithmetic._
 
+//TODO add many edge case too!
 object SystolicArrayTest extends App {
 
   val spinalConfig = SpinalConfig(defaultConfigForClockDomains = ClockDomainConfig(
@@ -205,6 +205,7 @@ object SystolicArrayTest extends App {
     ),
   )
 
+  //TODO add diagonal connection test
   SimConfig
     .withConfig(spinalConfig)
     .withFstWave
