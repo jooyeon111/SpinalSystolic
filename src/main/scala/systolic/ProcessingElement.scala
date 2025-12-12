@@ -1,7 +1,7 @@
 package systolic
 
 import spinal.core._
-import systolic.IntegerArithmetic._
+import systolic.Arithmetic._
 /**
  * Processing Element (PE) for systolic array computation.
  *
@@ -35,34 +35,26 @@ object ProcessingElement {
 
   def apply(dataflow: Dataflow.Value): ProcessingElement[SInt] = {
 
-    val defaultIndex = ProcessingElementIndex(
-      peRowIndex = 0,
-      peColIndex = 0,
-    )
-
-    val portEnableMask = PortEnableMask(
-      withOutputPortA = true,
-      withOutputPortB = true,
-      withInputPortC = true
-    )
+    val defaultIndex = ProcessingElementIndex.defaultProcessingElementIndex
+    val portEnableMask = PortEnableMask.defaultPortEnableMask
+    val defaultBitWidth = PortBitWidthInfo.default8bitInputWith32bitOutput
 
     implicit val arithmetic: Arithmetic[SInt] = sIntArithmetic
 
-    val arrayConfig = SystolicArrayConfig(
-      1,
-      1,
-      dataflow,
-      IntegerConfig(
-        IntegerType.SignedInteger,
-        PortBitWidthInfo(8, 8)
-      )
+    val arrayConfig = SystolicArrayConfig.signedInteger(
+      row = 1,
+      col = 1,
+      dataflow = dataflow,
+      defaultBitWidth.bitWidthInputA,
+      defaultBitWidth.bitWidthInputB,
+      defaultBitWidth.bitWidthSystolicOutputC,
     )
 
     implicit val portType: PortTypeProvider[SInt] = new SignedPortTypeProvider(
       arrayConfig = arrayConfig,
-      bitWidthInputA = 8,
-      bitWidthInputB = 8,
-      bitWidthSystolicOutputC = Some(32)
+      bitWidthInputA = defaultBitWidth.bitWidthInputA,
+      bitWidthInputB = defaultBitWidth.bitWidthInputB,
+      bitWidthSystolicOutputC = defaultBitWidth.bitWidthSystolicOutputC
     )
 
     new ProcessingElement[SInt](defaultIndex, portEnableMask, dataflow)(arithmetic, portType)

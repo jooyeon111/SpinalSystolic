@@ -11,17 +11,14 @@ object SystolicArrayTest extends App {
     resetActiveLevel = HIGH,
   ))
 
-  val systolicConfigReuseA = SystolicArrayConfig(
+  val defaultBitWidth = PortBitWidthInfo.default8bitInputWith32bitOutput
+
+  val systolicConfigReuseA = SystolicArrayConfig.signedInteger(
     row = 4,
     col = 4,
     dataflow = Dataflow.ReuseA,
-    integerConfig = IntegerConfig(
-      IntegerType.SignedInteger,
-      PortBitWidthInfo(
-        bitWidthInputA = 8,
-        bitWidthInputB = 8,
-      )
-    ),
+    defaultBitWidth.bitWidthInputA,
+    defaultBitWidth.bitWidthInputB,
   )
 
   SimConfig
@@ -105,17 +102,12 @@ object SystolicArrayTest extends App {
       simSuccess()
     }
 
-  val systolicConfigReuseB = SystolicArrayConfig(
+  val systolicConfigReuseB = SystolicArrayConfig.signedInteger(
     row = 4,
     col = 4,
     dataflow = Dataflow.ReuseB,
-    integerConfig = IntegerConfig(
-      IntegerType.SignedInteger,
-      PortBitWidthInfo(
-        bitWidthInputA = 8,
-        bitWidthInputB = 8,
-      )
-    ),
+    defaultBitWidth.bitWidthInputA,
+    defaultBitWidth.bitWidthInputB,
   )
 
   SimConfig
@@ -191,18 +183,13 @@ object SystolicArrayTest extends App {
       simSuccess()
     }
 
-  val systolicConfigReuseC = SystolicArrayConfig(
+  val systolicConfigReuseC = SystolicArrayConfig.signedInteger(
     row = 4,
     col = 4,
     dataflow = Dataflow.ReuseC,
-    integerConfig = IntegerConfig(
-      IntegerType.SignedInteger,
-      PortBitWidthInfo(
-        bitWidthInputA = 8,
-        bitWidthInputB = 8,
-        bitWidthSystolicOutputC = Some(20),
-      )
-    ),
+    defaultBitWidth.bitWidthInputA,
+    defaultBitWidth.bitWidthInputB,
+    defaultBitWidth.bitWidthSystolicOutputC,
   )
 
   //TODO add diagonal connection test

@@ -9,8 +9,8 @@ import spinal.lib.Delay
  * Reuse C systolic arrays needs special deskew buffer
  *
  * ==Delay Modes==
- * - '''Min-depth-first (default)''': Ascending delays 1, 2, 3, ..., n
- * - '''Max-depth-first''': Descending delays n, n-1, n-2, ..., 1
+ * - '''Min-depth-first (default)''': Ascending delays 1, 2, 3, ..., n for inputs
+ * - '''Max-depth-first''': Descending delays n, n-1, n-2, ..., 1 for outputs
  *
  * @example
  * {{{

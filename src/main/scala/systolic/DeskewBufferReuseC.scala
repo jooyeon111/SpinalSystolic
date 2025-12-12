@@ -2,7 +2,11 @@ package systolic
 
 import spinal.core._
 import spinal.lib.Delay
-
+/**
+ * Deskew Buffer ReuseC for supporting forwarding ResueC diagonal output direction
+ * Only Reuse C (Output Stationary) needs this for deskewing output
+ *
+ */
 class DeskewBufferReuseC[T <: Data](
                         val portType: T,
                         val arrayConfig: SystolicArrayConfig,
