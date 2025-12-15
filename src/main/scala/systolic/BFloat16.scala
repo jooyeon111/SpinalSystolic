@@ -29,8 +29,8 @@ case class BFloat16() extends Bundle {
   def isNaN: Bool = exponent === 0xFF && mantissa =/= 0
   def isDenormalized: Bool = exponent === 0 && mantissa =/= 0
 
-  def toFloating32: Floating32 = {
-    val fp32 = Floating32()
+  def toFloat32: Float32 = {
+    val fp32 = Float32()
     fp32.sign := sign
     fp32.exponent := exponent
     fp32.mantissa := mantissa @@ U(0, 16 bits)
@@ -55,7 +55,7 @@ object BFloat16 {
     bf16
   }
 
-  def fromFloat32(fp32: Floating32): BFloat16 = {
+  def fromFloat32(fp32: Float32): BFloat16 = {
     val bf16 = BFloat16()
     bf16.sign := fp32.sign
     bf16.exponent := fp32.exponent

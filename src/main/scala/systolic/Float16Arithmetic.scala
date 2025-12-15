@@ -19,8 +19,8 @@ object Float16Arithmetic {
    * FP16: 1 sign + 5 exponent (bias 15) + 10 mantissa
    * FP32: 1 sign + 8 exponent (bias 127) + 23 mantissa
    */
-  def multiply(a: Float16, b: Float16): Floating32 = new Composite(a, "fp16_multiply") {
-    val result = Floating32()
+  def multiply(a: Float16, b: Float16): Float32 = new Composite(a, "fp16_multiply") {
+    val result = Float32()
 
     // Special case flags
     val aIsZero = a.isZero
@@ -109,34 +109,27 @@ object Float16Arithmetic {
    * Add two FP32 numbers (reuse from BFloat16Arithmetic)
    * FP32 addition is the same regardless of input format
    */
-  def add(a: Floating32, b: Floating32): Floating32 = {
+  def add(a: Float32, b: Float32): Float32 = {
     BFloat16Arithmetic.add(a, b)
   }
 
   /**
    * Implicit arithmetic instance for use with the systolic array
    */
-  implicit val fp16Fp32Arithmetic: Arithmetic[Bits] = new Arithmetic[Bits] {
-    override def zero(width: Int): Bits = B(0, width bits)
+  implicit val fp16Fp32Arithmetic: Arithmetic[Float16, Float32] = new Arithmetic[Float16, Float32] {
 
-    override def multiply(inputA: Bits, inputB: Bits): Bits = {
-      val a = Float16(inputA)
-      val b = Float16(inputB)
-      Float16Arithmetic.multiply(a, b).asBits
+    override def multiply(inputA: Float16, inputB: Float16): Float32 = Float16Arithmetic.multiply(inputA, inputB)
+    override def add(input0: Float32, input1: Float32): Float32 = Float16Arithmetic.add(input0, input1)
+    override def addResize(input0: Float32, input1: Float32, targetWidth: Int): Float32 = {
+      require(targetWidth == 32, "FP32 accumulation must have width 32")
+      Float16Arithmetic.add(input0, input1)
     }
 
-    override def add(input0: Bits, input1: Bits): Bits = {
-      val a = Floating32(input0)
-      val b = Floating32(input1)
-      Float16Arithmetic.add(a, b).asBits
-    }
+    override def zeroInput(width: Int): Float16 = Float16.zero
+    override def zeroAccumulation(width: Int): Float32 = Float32.zero
 
-    override def addResize(input0: Bits, input1: Bits, targetWidth: Int): Bits = {
-      val a = Floating32(input0.resize(32))
-      val b = Floating32(input1.resize(32))
-      Float16Arithmetic.add(a, b).asBits.resize(targetWidth)
-    }
   }
+
 }
 
 

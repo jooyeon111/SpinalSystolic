@@ -27,24 +27,38 @@ import spinal.core._
  *   val inputType = provider.createInputTypeA  // SInt(8 bits)
  * }}}
  */
-trait PortTypeProvider [T <: Data] {
+trait PortTypeProvider [InputType <: Data, AccType <: Data] {
 
-  def createInputTypeA: T
-  def createInputTypeB: T
-  def createMultOutputType: T
-  def createPeInputTypeC(index: ProcessingElementIndex): T
-  def createPeOutputTypeC(index: ProcessingElementIndex): T
-  def createSystolicOutputTypeC: T
+  def createInputTypeA: InputType
+  def createInputTypeB: InputType
+  def createMultOutputType: AccType
+  def createPeInputTypeC(index: ProcessingElementIndex): AccType
+  def createPeOutputTypeC(index: ProcessingElementIndex): AccType
+  def createSystolicOutputTypeC: AccType
 
-  final def zeroInputA(implicit arithmetic: Arithmetic[T]): T = arithmetic.zero(createInputTypeA.getBitsWidth)
-  final def zeroInputB(implicit arithmetic: Arithmetic[T]): T = arithmetic.zero(createInputTypeB.getBitsWidth)
-  final def zeroMultOutput(implicit arithmetic: Arithmetic[T]): T = arithmetic.zero(createMultOutputType.getBitsWidth)
-  final def zeroPeInputTypeC(index: ProcessingElementIndex)(implicit arithmetic: Arithmetic[T]): T  =
-    arithmetic.zero(createPeInputTypeC(index).getBitsWidth)
-  final def zeroPeOutputTypeC(index: ProcessingElementIndex)(implicit arithmetic: Arithmetic[T]): T  =
-    arithmetic.zero(createPeOutputTypeC(index).getBitsWidth)
-    final def zeroSystolicOutputTypeC(index: ProcessingElementIndex)(implicit arithmetic: Arithmetic[T]): T =
-    arithmetic.zero(createSystolicOutputTypeC.getBitsWidth)
+  final def zeroInputA(implicit arithmetic: Arithmetic[InputType, AccType]): InputType =
+    arithmetic.zeroInput(createInputTypeA.getBitsWidth)
+
+  final def zeroInputB(implicit arithmetic: Arithmetic[InputType, AccType]): InputType =
+    arithmetic.zeroInput(createInputTypeB.getBitsWidth)
+
+  final def zeroMultOutput(implicit arithmetic: Arithmetic[InputType, AccType]): AccType =
+    arithmetic.zeroAccumulation(createMultOutputType.getBitsWidth)
+
+  final def zeroPeInputTypeC(index: ProcessingElementIndex)(
+    implicit arithmetic: Arithmetic[InputType, AccType]
+  ): AccType  =
+    arithmetic.zeroAccumulation(createPeInputTypeC(index).getBitsWidth)
+
+  final def zeroPeOutputTypeC(index: ProcessingElementIndex)(
+    implicit arithmetic: Arithmetic[InputType, AccType]
+  ): AccType  =
+    arithmetic.zeroAccumulation(createPeOutputTypeC(index).getBitsWidth)
+
+  final def zeroSystolicOutputTypeC(index: ProcessingElementIndex)(
+    implicit arithmetic: Arithmetic[InputType, AccType]
+  ): AccType =
+    arithmetic.zeroAccumulation(createSystolicOutputTypeC.getBitsWidth)
 
 }
 
@@ -53,7 +67,7 @@ class SignedPortTypeProvider(
                               val bitWidthInputA: Int,
                               val bitWidthInputB: Int,
                               val bitWidthSystolicOutputC: Option[Int],
-                            ) extends PortTypeProvider[SInt]{
+                            ) extends PortTypeProvider[SInt, SInt]{
 
   private def safeLog2Up(value: Int): Int = {
     if (value <= 1) 0 else log2Up(value)
@@ -119,7 +133,7 @@ class UnsignedPortTypeProvider(
                                 val bitWidthInputA: Int,
                                 val bitWidthInputB: Int,
                                 val bitWidthSystolicOutputC: Option[Int],
-                              ) extends PortTypeProvider[UInt]{
+                              ) extends PortTypeProvider[UInt, UInt]{
 
   private def safeLog2Up(value: Int): Int = {
     if (value <= 1) 0 else log2Up(value)

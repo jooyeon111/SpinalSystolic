@@ -14,8 +14,8 @@ object BFloat16Arithmetic {
   /**
    * Multiply two BFloat16 numbers and return FP32 result
    */
-  def multiply(a: BFloat16, b: BFloat16): Floating32 = new Composite(a, "bf16_multiply") {
-    val result = Floating32()
+  def multiply(a: BFloat16, b: BFloat16): Float32 = new Composite(a, "bf16_multiply") {
+    val result = Float32()
 
     // Special case: either input is zero
     val aIsZero = a.isZero
@@ -109,8 +109,8 @@ object BFloat16Arithmetic {
    * 3. Add or subtract mantissas based on signs
    * 4. Normalize result
    */
-  def add(a: Floating32, b: Floating32): Floating32 = new Composite(a, "fp32_add") {
-    val result = Floating32()
+  def add(a: Float32, b: Float32): Float32 = new Composite(a, "fp32_add") {
+    val result = Float32()
 
     // Special cases
     val aIsZero = a.isZero
@@ -255,26 +255,25 @@ object BFloat16Arithmetic {
     result
   }
 
-  implicit val bf16Fp32Arithmetic: Arithmetic[Bits] = new Arithmetic[Bits] {
-    override def zero(width: Int): Bits = B(0, width bits)
+  implicit val bf16Fp32Arithmetic: Arithmetic[BFloat16, Float32] = new Arithmetic[BFloat16, Float32] {
 
-    override def multiply(inputA: Bits, inputB: Bits): Bits = {
-      val a = BFloat16(inputA)
-      val b = BFloat16(inputB)
-      BFloat16Arithmetic.multiply(a, b).asBits
+    override def multiply(inputA: BFloat16, inputB: BFloat16): Float32 =
+      BFloat16Arithmetic.multiply(inputA, inputB)
+
+    override def add(input0: Float32, input1: Float32): Float32 = BFloat16Arithmetic.add(input0, input1)
+
+    override def addResize(input0: Float32, input1: Float32, targetWidth: Int): Float32 = {
+      require(targetWidth == 32, "FP32 accumulation must have width 32")
+      add(input0, input1)
     }
 
-    override def add(input0: Bits, input1: Bits): Bits = {
-      val a = Floating32(input0)
-      val b = Floating32(input1)
-      BFloat16Arithmetic.add(a, b).asBits
-    }
-
-    override def addResize(input0: Bits, input1: Bits, targetWidth: Int): Bits = {
-      // For FP32 accumulation, width is always 32
-      val a = Floating32(input0.resize(32))
-      val b = Floating32(input1.resize(32))
-      BFloat16Arithmetic.add(a, b).asBits.resize(targetWidth)
-    }
+    override def zeroInput(width: Int): BFloat16 = BFloat16.zero
+    override def zeroAccumulation(width: Int): Float32 = Float32.zero
   }
+
+
+
+
+
+
 }

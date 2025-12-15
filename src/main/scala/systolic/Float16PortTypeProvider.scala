@@ -12,7 +12,7 @@ import spinal.core._
  */
 class Float16PortTypeProvider(
                                val arrayConfig: SystolicArrayConfig
-                             ) extends PortTypeProvider[Bits] {
+                             ) extends PortTypeProvider[Float16, Float32] {
 
   // Get FP16 config (validates that we have the right config type)
   private val fp16Config: Float16DataTypeConfig = arrayConfig.dataTypeConfig match {
@@ -32,22 +32,22 @@ class Float16PortTypeProvider(
   // Systolic output is always FP32
   private val systolicOutputBitwidth: Int = fp32Width
 
-  override def createInputTypeA: Bits = Bits(fp16Width bits)
+  override def createInputTypeA: Float16 = Float16()
 
-  override def createInputTypeB: Bits = Bits(fp16Width bits)
+  override def createInputTypeB: Float16 = Float16()
 
-  override def createMultOutputType: Bits = Bits(multOutputBitWidth bits)
+  override def createMultOutputType: Float32 = Float32()
 
-  override def createPeInputTypeC(index: ProcessingElementIndex): Bits = {
-    Bits(fp32Width bits)
+  override def createPeInputTypeC(index: ProcessingElementIndex): Float32 = {
+    Float32()
   }
 
-  override def createPeOutputTypeC(index: ProcessingElementIndex): Bits = {
-    Bits(fp32Width bits)
+  override def createPeOutputTypeC(index: ProcessingElementIndex): Float32 = {
+    Float32()
   }
 
-  override def createSystolicOutputTypeC: Bits = {
-    Bits(systolicOutputBitwidth bits)
+  override def createSystolicOutputTypeC: Float32 = {
+    Float32()
   }
 }
 

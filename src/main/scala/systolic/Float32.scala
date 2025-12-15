@@ -10,15 +10,15 @@ import spinal.core._
  *
  * Used for accumulation in BF16 arithmetic to maintain precision.
  */
-case class Floating32() extends Bundle {
+case class Float32() extends Bundle {
   val sign = Bool()
   val exponent = UInt(8 bits)
   val mantissa = UInt(23 bits)
 
   override def asBits: Bits = sign ## exponent ## mantissa
 
-  def fromBits(bits: Bits): Floating32 = {
-    val fp32 = Floating32()
+  def fromBits(bits: Bits): Float32 = {
+    val fp32 = Float32()
     fp32.sign := bits(31)
     fp32.exponent := bits(30 downto 23).asUInt
     fp32.mantissa := bits(22 downto 0).asUInt
@@ -31,14 +31,14 @@ case class Floating32() extends Bundle {
   def isDenormalized: Bool = exponent === 0 && mantissa =/= 0
 
   /**
-   * Convert Floating32 to BFloat16 (truncation - no rounding)
+   * Convert Float32 to BFloat16 (truncation - no rounding)
    */
   def toBFloat16: BFloat16 = {
     BFloat16.fromFloat32(this)
   }
 
   /**
-   * Convert Floating32 to BFloat16 with round-to-nearest-even
+   * Convert Float32 to BFloat16 with round-to-nearest-even
    */
   def toBFloat16Rounded: BFloat16 = {
     val bf16 = BFloat16()
@@ -67,25 +67,25 @@ case class Floating32() extends Bundle {
   }
 }
 
-object Floating32 {
-  def apply(bits: Bits): Floating32 = {
-    val fp32 = Floating32()
+object Float32 {
+  def apply(bits: Bits): Float32 = {
+    val fp32 = Float32()
     fp32.sign := bits(31)
     fp32.exponent := bits(30 downto 23).asUInt
     fp32.mantissa := bits(22 downto 0).asUInt
     fp32
   }
 
-  def zero: Floating32 = {
-    val fp32 = Floating32()
+  def zero: Float32 = {
+    val fp32 = Float32()
     fp32.sign := False
     fp32.exponent := 0
     fp32.mantissa := 0
     fp32
   }
 
-  def fromBFloat16(bf16: BFloat16): Floating32 = {
-    bf16.toFloating32
+  def fromBFloat16(bf16: BFloat16): Float32 = {
+    bf16.toFloat32
   }
 
   /** Width in bits */

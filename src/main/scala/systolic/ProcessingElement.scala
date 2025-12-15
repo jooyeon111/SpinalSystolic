@@ -33,13 +33,13 @@ import systolic.Arithmetic._
  */
 object ProcessingElement {
 
-  def apply(dataflow: Dataflow.Value): ProcessingElement[SInt] = {
+  def apply(dataflow: Dataflow.Value): ProcessingElement[SInt, SInt] = {
 
     val defaultIndex = ProcessingElementIndex.defaultProcessingElementIndex
     val portEnableMask = PortEnableMask.defaultPortEnableMask
     val defaultBitWidth = PortBitWidthInfo.default8bitInputWith32bitOutput
 
-    implicit val arithmetic: Arithmetic[SInt] = sIntArithmetic
+    implicit val arithmetic: Arithmetic[SInt, SInt] = sIntArithmetic
 
     val arrayConfig = SystolicArrayConfig.signedInteger(
       row = 1,
@@ -50,27 +50,27 @@ object ProcessingElement {
       defaultBitWidth.bitWidthSystolicOutputC,
     )
 
-    implicit val portType: PortTypeProvider[SInt] = new SignedPortTypeProvider(
+    implicit val portType: PortTypeProvider[SInt, SInt] = new SignedPortTypeProvider(
       arrayConfig = arrayConfig,
       bitWidthInputA = defaultBitWidth.bitWidthInputA,
       bitWidthInputB = defaultBitWidth.bitWidthInputB,
       bitWidthSystolicOutputC = defaultBitWidth.bitWidthSystolicOutputC
     )
 
-    new ProcessingElement[SInt](defaultIndex, portEnableMask, dataflow)(arithmetic, portType)
+    new ProcessingElement[SInt, SInt](defaultIndex, portEnableMask, dataflow)(arithmetic, portType)
 
   }
 
 }
 
-class ProcessingElement[T <: Data](
+class ProcessingElement[InputType <: Data, AccType <: Data](
                                   val index: ProcessingElementIndex,
                                   val portEnableMask: PortEnableMask,
 //                                  val arrayConfig: SystolicArrayConfig,
                                   val dataflow: Dataflow.Value,
                                   )(
-                                  implicit val arithmetic: Arithmetic[T],
-                                  implicit val portType: PortTypeProvider[T],
+                                  implicit val arithmetic: Arithmetic[InputType, AccType],
+                                  implicit val portType: PortTypeProvider[InputType, AccType],
 ) extends Component {
 
   val io = new Bundle {
@@ -92,7 +92,7 @@ class ProcessingElement[T <: Data](
 
   }
 
-  private def captureInput(input: T, inputCaptureEnable: Bool, zeroValue: T): T = {
+  private def captureInput(input: InputType, inputCaptureEnable: Bool, zeroValue: InputType): InputType = {
     RegNextWhen(
       next = input,
       cond = inputCaptureEnable,
@@ -100,12 +100,11 @@ class ProcessingElement[T <: Data](
     )
   }
 
-  private def registerInput(input: T, zeroValue: T): T = {
-    val registerInput = RegNext(input, init = zeroValue)
-    registerInput
+  private def registerInput(input: InputType, zeroValue: InputType): InputType = {
+    RegNext(input, init = zeroValue)
   }
 
-  private def multiply(inputA : T, inputB : T): T = {
+  private def multiply(inputA : InputType, inputB : InputType): AccType = {
     arithmetic.multiply(inputA, inputB)
   }
 
@@ -170,7 +169,7 @@ class ProcessingElement[T <: Data](
 
   }
 
-  private def addInputC(multiplyResult: T): T = {
+  private def addInputC(multiplyResult: AccType): AccType = {
     val zero = portType.zeroPeOutputTypeC(index)
     val outputWidth = portType.createPeOutputTypeC(index).getBitsWidth
 

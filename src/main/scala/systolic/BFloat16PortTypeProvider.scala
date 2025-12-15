@@ -17,7 +17,7 @@ import spinal.core._
  */
 class BFloat16PortTypeProvider(
                                 val arrayConfig: SystolicArrayConfig
-                              ) extends PortTypeProvider[Bits] {
+                              ) extends PortTypeProvider[BFloat16, Float32] {
 
   // Get BF16 config (validates that we have the right config type)
   private val bf16Config: BFloat16DataTypeConfig = arrayConfig.dataTypeConfig match {
@@ -37,25 +37,25 @@ class BFloat16PortTypeProvider(
   // Systolic output is always FP32
   private val systolicOutputBitwidth: Int = fp32Width
 
-  override def createInputTypeA: Bits = Bits(bf16Width bits)
+  override def createInputTypeA: BFloat16 = BFloat16()
 
-  override def createInputTypeB: Bits = Bits(bf16Width bits)
+  override def createInputTypeB: BFloat16 = BFloat16()
 
-  override def createMultOutputType: Bits = Bits(multOutputBitWidth bits)
+  override def createMultOutputType: Float32 = Float32()
 
-  override def createPeInputTypeC(index: ProcessingElementIndex): Bits = {
+  override def createPeInputTypeC(index: ProcessingElementIndex): Float32 = {
     // For BF16 with FP32 accumulation, all C ports are FP32
     // regardless of dataflow or position
-    Bits(fp32Width bits)
+    Float32()
   }
 
-  override def createPeOutputTypeC(index: ProcessingElementIndex): Bits = {
+  override def createPeOutputTypeC(index: ProcessingElementIndex): Float32 = {
     // For BF16 with FP32 accumulation, all C ports are FP32
-    Bits(fp32Width bits)
+    Float32()
   }
 
-  override def createSystolicOutputTypeC: Bits = {
-    Bits(systolicOutputBitwidth bits)
+  override def createSystolicOutputTypeC: Float32 = {
+    Float32()
   }
 }
 

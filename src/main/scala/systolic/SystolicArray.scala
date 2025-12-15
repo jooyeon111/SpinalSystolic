@@ -38,37 +38,37 @@ object SystolicArray {
 
     intConfig.integerType match {
       case IntegerType.SignedInteger =>
-        implicit val arithmetic: Arithmetic[SInt] = sIntArithmetic
-        implicit val portType: PortTypeProvider[SInt] = new SignedPortTypeProvider(
+        implicit val arithmetic: Arithmetic[SInt, SInt] = sIntArithmetic
+        implicit val portType: PortTypeProvider[SInt, SInt] = new SignedPortTypeProvider(
           arrayConfig,
           bitWidthPair.bitWidthInputA,
           bitWidthPair.bitWidthInputB,
           bitWidthPair.bitWidthSystolicOutputC
         )
-        new SystolicArray[SInt](arrayConfig)(arithmetic, portType)
+        new SystolicArray[SInt, SInt](arrayConfig)(arithmetic, portType)
 
       case IntegerType.UnsignedInteger =>
-        implicit val arithmetic: Arithmetic[UInt] = uIntArithmetic
-        implicit val portType: PortTypeProvider[UInt] = new UnsignedPortTypeProvider(
+        implicit val arithmetic: Arithmetic[UInt, UInt] = uIntArithmetic
+        implicit val portType: PortTypeProvider[UInt, UInt] = new UnsignedPortTypeProvider(
           arrayConfig,
           bitWidthPair.bitWidthInputA,
           bitWidthPair.bitWidthInputB,
           bitWidthPair.bitWidthSystolicOutputC
         )
-        new SystolicArray[UInt](arrayConfig)(arithmetic, portType)
+        new SystolicArray[UInt, UInt](arrayConfig)(arithmetic, portType)
     }
   }
 
   private def createBFloat16Array(arrayConfig: SystolicArrayConfig): Component = {
-    implicit val arithmetic: Arithmetic[Bits] = bf16Fp32Arithmetic
-    implicit val portType: PortTypeProvider[Bits] = new BFloat16PortTypeProvider(arrayConfig)
-    new SystolicArray[Bits](arrayConfig)(arithmetic, portType)
+    implicit val arithmetic: Arithmetic[BFloat16, Float32] = bf16Fp32Arithmetic
+    implicit val portType: PortTypeProvider[BFloat16, Float32] = new BFloat16PortTypeProvider(arrayConfig)
+    new SystolicArray[BFloat16, Float32](arrayConfig)(arithmetic, portType)
   }
 
   private def createFloat16Array(arrayConfig: SystolicArrayConfig): Component = {
-    implicit val arithmetic: Arithmetic[Bits] = fp16Fp32Arithmetic
-    implicit val portType: PortTypeProvider[Bits] = new Float16PortTypeProvider(arrayConfig)
-    new SystolicArray[Bits](arrayConfig)(arithmetic, portType)
+    implicit val arithmetic: Arithmetic[Float16, Float32] = fp16Fp32Arithmetic
+    implicit val portType: PortTypeProvider[Float16, Float32] = new Float16PortTypeProvider(arrayConfig)
+    new SystolicArray[Float16, Float32](arrayConfig)(arithmetic, portType)
   }
 }
 
@@ -80,11 +80,11 @@ object SystolicArray {
  * @param arithmetic Implicit arithmetic operations for type T
  * @param portType Implicit port type provider for type T
  */
-class SystolicArray[T <: Data](
+class SystolicArray[InputType <: Data, AccType <: Data](
                                 val arrayConfig: SystolicArrayConfig
                               )(
-                                implicit val arithmetic: Arithmetic[T],
-                                implicit val portType: PortTypeProvider[T],
+                                implicit val arithmetic: Arithmetic[InputType, AccType],
+                                implicit val portType: PortTypeProvider[InputType, AccType],
                               ) extends Component {
 
   // Set definition name based on data type and configuration

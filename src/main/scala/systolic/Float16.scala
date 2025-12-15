@@ -29,11 +29,11 @@ case class Float16() extends Bundle {
   def isDenormalized: Bool = exponent === 0 && mantissa =/= 0
 
   /**
-   * Convert FP16 to Floating32
+   * Convert FP16 to Float32
    * Requires exponent rebias: FP16 bias=15, FP32 bias=127
    */
-  def toFloating32: Floating32 = {
-    val fp32 = Floating32()
+  def toFloat32: Float32 = {
+    val fp32 = Float32()
     fp32.sign := sign
 
     // Handle special cases
@@ -80,7 +80,7 @@ object Float16 {
   /**
    * Convert from FP32 to FP16 (with truncation)
    */
-  def fromFloat32(fp32: Floating32): Float16 = {
+  def fromFloat32(fp32: Float32): Float16 = {
     val fp16 = Float16()
     fp16.sign := fp32.sign
 
