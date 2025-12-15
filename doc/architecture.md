@@ -26,7 +26,7 @@ This is a parameterized systolic array implementation written in SpinalHDL
 ### Systolic Array Fundamentals
 
 A systolic array is a network of processing elements (PEs) that compute and pass data through the array:
-![SystolicArrayImage](SystolicArray.eps)
+![SystolicArrayImage](SystolicArray.svg)
 
 Each PE performs a multiply-accumulate (MAC) operation:
 
