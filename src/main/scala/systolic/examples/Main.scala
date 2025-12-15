@@ -63,18 +63,7 @@ object Main extends App {
   println(s"Generated: FP16_${fp16Config.dataflow}_SystolicArray_${fp16Config.row}x${fp16Config.col}")
 
   // ============================================================
-  // Example 4: Typed wrappers (with structured IO)
-  // ============================================================
-  println("\n=== Generating Typed Systolic Arrays ===")
-
-  spinalConfig.generateVerilog(BFloat16SystolicArrayTyped(4, 4, Dataflow.ReuseC))
-  println("Generated: BF16_ReuseC_SystolicArray_4x4_Typed")
-
-  spinalConfig.generateVerilog(Float16SystolicArrayTyped(4, 4, Dataflow.ReuseC))
-  println("Generated: FP16_ReuseC_SystolicArray_4x4_Typed")
-
-  // ============================================================
-  // Example 5: All dataflow variants comparison
+  // Example 4: All dataflow variants comparison
   // ============================================================
   println("\n=== Generating All Dataflow Variants ===")
 
