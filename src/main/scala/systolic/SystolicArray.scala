@@ -180,7 +180,10 @@ class SystolicArray[T <: Data](
         }
 
       case Dataflow.ReuseB | Dataflow.ReuseC =>
-        val skewBuffer = new SkewBuffer(portType.createInputTypeA, arrayConfig.row)
+
+        val tileType = TileType.TypeA
+
+        val skewBuffer = new SkewBuffer(tileType, portType.createInputTypeA, arrayConfig.row)
 
         for(r <- 0 until arrayConfig.row){
           skewBuffer.io.input(r) := io.inputA(r)
@@ -199,7 +202,10 @@ class SystolicArray[T <: Data](
   private def wireB(): Unit = {
     arrayConfig.dataflow match {
       case Dataflow.ReuseA | Dataflow.ReuseC =>
-        val skewBuffer = new SkewBuffer(portType.createInputTypeB, arrayConfig.col)
+
+        val tileType = TileType.TypeB
+
+        val skewBuffer = new SkewBuffer(tileType, portType.createInputTypeB, arrayConfig.col)
 
         for(c <- 0 until arrayConfig.col){
           skewBuffer.io.input(c) := io.inputB(c)
@@ -256,9 +262,12 @@ class SystolicArray[T <: Data](
   }
 
   private def wireC(): Unit = {
+    val tileType = TileType.TypeC
+
     arrayConfig.dataflow match {
       case Dataflow.ReuseA =>
         val deskewBuffer = new SkewBuffer(
+          tileType = tileType,
           inputType = portType.createSystolicOutputTypeC,
           delayDepth = arrayConfig.row,
           isMinDepthFirst = false
@@ -278,6 +287,7 @@ class SystolicArray[T <: Data](
 
       case Dataflow.ReuseB =>
         val deskewBuffer = new SkewBuffer(
+          tileType = tileType,
           inputType = portType.createSystolicOutputTypeC,
           delayDepth = arrayConfig.col,
           isMinDepthFirst = false
@@ -296,6 +306,12 @@ class SystolicArray[T <: Data](
         }
 
       case Dataflow.ReuseC =>
+
+        val deskewBuffer = new DeskewBufferReuseC(
+          portType.createSystolicOutputTypeC,
+          arrayConfig,
+        )
+
         for {
           r <- 0 until arrayConfig.row
           c <- 0 until arrayConfig.col
@@ -306,8 +322,6 @@ class SystolicArray[T <: Data](
             val currentPe = pes(r)(c)
             targetPe.io.inputC := currentPe.io.outputC
           }
-
-          val deskewBuffer = new DeskewBufferReuseC(portType.createSystolicOutputTypeC, arrayConfig)
 
           if (isOutputPosition(r, c)) {
             val outputIndex = getOutputIndex(r, c)

@@ -32,10 +32,14 @@ import spinal.lib.Delay
  */
 
 class SkewBuffer [T <: Data](
+                            val tileType: TileType.Value,
                             val inputType: T,
                             val delayDepth : Int,
                             val isMinDepthFirst: Boolean = true
 ) extends Component {
+
+  private val bufferTypeName = if (isMinDepthFirst) "Skew" else "Deskew"
+  setDefinitionName(s"${tileType}_${bufferTypeName}Buffer")
 
   val io = new Bundle {
     val input = in Vec(HardType(inputType), delayDepth)
@@ -51,6 +55,5 @@ class SkewBuffer [T <: Data](
       io.output(i) := Delay(io.input(i), delayDepth -i)
     }
   }
-
 
 }

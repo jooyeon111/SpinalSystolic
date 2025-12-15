@@ -23,12 +23,12 @@ object Main extends App {
   println("=== Generating Signed Integer Systolic Array ===")
 
   val intConfig = SystolicArrayConfig.signedInteger(
-    row = 4,
-    col = 4,
-    dataflow = Dataflow.ReuseC,
+    row = 16,
+    col = 16,
+    dataflow = Dataflow.ReuseB,
     bitWidthA = 8,
     bitWidthB = 8,
-    bitWidthOutputC = Some(32)
+//    bitWidthOutputC = Some(32)
   )
 
   spinalConfig.generateVerilog(SystolicArray(intConfig))

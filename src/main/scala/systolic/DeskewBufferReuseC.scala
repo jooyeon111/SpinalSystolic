@@ -13,6 +13,7 @@ class DeskewBufferReuseC[T <: Data](
 ) extends Component {
 
   assert(arrayConfig.dataflow == Dataflow.ReuseC, "only Resue C systolic array can use this deskewing")
+  setDefinitionName(s"${TileType.TypeC}_DeskewBuffer")
 
   val numPort = arrayConfig.row + arrayConfig.col - 1
 

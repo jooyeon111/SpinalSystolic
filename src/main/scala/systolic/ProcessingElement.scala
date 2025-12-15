@@ -93,14 +93,11 @@ class ProcessingElement[T <: Data](
   }
 
   private def captureInput(input: T, inputCaptureEnable: Bool, zeroValue: T): T = {
-
-    val captureInput = RegNext(input, init = zeroValue)
-
-    when(inputCaptureEnable){
-      captureInput := input
-    }
-    captureInput
-
+    RegNextWhen(
+      next = input,
+      cond = inputCaptureEnable,
+      init = zeroValue
+    )
   }
 
   private def registerInput(input: T, zeroValue: T): T = {
