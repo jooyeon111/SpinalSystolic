@@ -1,14 +1,8 @@
 package systolic
 
-import spinal.core._
 import spinal.core.sim._
 
 object BFloat16SystolicArrayTest extends App {
-
-  val spinalConfig = SpinalConfig(defaultConfigForClockDomains = ClockDomainConfig(
-    resetKind = SYNC,
-    resetActiveLevel = HIGH
-  ))
 
   // Helper functions for BFloat16 conversion
   def floatToBF16Bits(f: Float): Int = {
@@ -44,10 +38,7 @@ object BFloat16SystolicArrayTest extends App {
     Dataflow.ReuseB
   )
 
-  SimConfig
-    .withConfig(spinalConfig)
-    .withFstWave
-    .workspaceName("BF16_ReuseB_Test")
+  TestConfig.createSimConfig("BF16_ReuseB_Test")
     .compile(SystolicArray(bf16ConfigReuseB))
     .doSim { dut =>
 

@@ -6,11 +6,6 @@ import spinal.core.sim._
 //TODO add many edge case too!
 object SystolicArrayTest extends App {
 
-  val spinalConfig = SpinalConfig(defaultConfigForClockDomains = ClockDomainConfig(
-    resetKind = SYNC,
-    resetActiveLevel = HIGH,
-  ))
-
   val defaultBitWidth = PortBitWidthInfo.default8bitInputWith32bitOutput
 
   val systolicConfigReuseA = SignedIntConfig(
@@ -20,10 +15,7 @@ object SystolicArrayTest extends App {
     defaultBitWidth.bitWidthInputB,
   )
 
-  SimConfig
-    .withConfig(spinalConfig)
-    .withFstWave
-    .workspaceName("Reuse_A_Systolic_Array")
+  TestConfig.createSimConfig("Reuse_A_Systolic_Array")
     .compile(SystolicArray(systolicConfigReuseA))
     .doSim{ dut =>
 
@@ -106,10 +98,7 @@ object SystolicArrayTest extends App {
     defaultBitWidth.bitWidthInputB,
   )
 
-  SimConfig
-    .withConfig(spinalConfig)
-    .withFstWave
-    .workspaceName("Reuse_B_Systolic_Array")
+  TestConfig.createSimConfig("Reuse_B_Systolic_Array")
     .compile(SystolicArray(systolicConfigReuseB))
     .doSim{ dut =>
 
@@ -186,10 +175,7 @@ object SystolicArrayTest extends App {
   )
 
   //TODO add diagonal connection test
-  SimConfig
-    .withConfig(spinalConfig)
-    .withFstWave
-    .workspaceName("Reuse_C_Systolic_Array")
+  TestConfig.createSimConfig("Reuse_C_Systolic_Array")
     .compile(SystolicArray(systolicConfigReuseC))
     .doSim{ dut =>
 

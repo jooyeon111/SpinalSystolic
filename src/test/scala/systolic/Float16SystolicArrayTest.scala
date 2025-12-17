@@ -5,11 +5,6 @@ import spinal.core.sim._
 
 object Float16SystolicArrayTest extends App {
 
-  val spinalConfig = SpinalConfig(defaultConfigForClockDomains = ClockDomainConfig(
-    resetKind = SYNC,
-    resetActiveLevel = HIGH
-  ))
-
   // Helper functions for FP16 conversion
   def floatToFP16Bits(f: Float): Int = {
     val fp32Bits = java.lang.Float.floatToIntBits(f)
@@ -79,10 +74,7 @@ object Float16SystolicArrayTest extends App {
     dataflow = Dataflow.ReuseC
   )
 
-  SimConfig
-    .withConfig(spinalConfig)
-    .withFstWave
-    .workspaceName("FP16_ReuseC_Test")
+  TestConfig.createSimConfig("FP16_ReuseC_Test")
     .compile(SystolicArray(fp16ConfigReuseC))
     .doSim { dut =>
 
@@ -257,10 +249,7 @@ object Float16SystolicArrayTest extends App {
     dataflow = Dataflow.ReuseA
   )
 
-  SimConfig
-    .withConfig(spinalConfig)
-    .withFstWave
-    .workspaceName("FP16_ReuseA_Test")
+  TestConfig.createSimConfig("FP16_ReuseA_Test")
     .compile(SystolicArray(fp16ConfigReuseA))
     .doSim { dut =>
 

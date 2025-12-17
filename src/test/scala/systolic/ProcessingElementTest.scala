@@ -12,11 +12,12 @@ object ProcessingElementTest extends App {
 
   val reuseA = Dataflow.ReuseA
 
-  SimConfig
-    .withConfig(spinalConfig)
-    .withFstWave
-    .workspaceName("Resue_A")
-    .allOptimisation
+//  SimConfig
+//    .withConfig(spinalConfig)
+//    .withFstWave
+//    .workspaceName("Resue_A")
+//    .allOptimisation
+  TestConfig.createSimConfig("Reuse_A")
     .compile(ProcessingElement(reuseA))
     .doSim { dut =>
       dut.clockDomain.forkStimulus(10, resetCycles = 1)
@@ -57,11 +58,12 @@ object ProcessingElementTest extends App {
 
   val reuseB = Dataflow.ReuseB
 
-  SimConfig
-    .withConfig(spinalConfig)
-    .withFstWave
-    .workspaceName("Resue_B")
-    .allOptimisation
+//  SimConfig
+//    .withConfig(spinalConfig)
+//    .withFstWave
+//    .workspaceName("Resue_B")
+//    .allOptimisation
+  TestConfig.createSimConfig("Reuse_B")
     .compile(ProcessingElement(reuseB))
     .doSim { dut =>
       dut.clockDomain.forkStimulus(10, resetCycles = 1)
@@ -102,11 +104,13 @@ object ProcessingElementTest extends App {
 
   val reuseC = Dataflow.ReuseC
 
-  SimConfig
-    .withConfig(spinalConfig)
-    .withFstWave
-    .workspaceName("Resue_C")
-    .allOptimisation
+//  SimConfig
+//    .withConfig(spinalConfig)
+//    .withFstWave
+//    .workspaceName("Resue_C")
+//    .allOptimisation
+
+  TestConfig.createSimConfig("Reuse_C")
     .compile(ProcessingElement(reuseC))
     .doSim { dut =>
       dut.clockDomain.forkStimulus(10, resetCycles = 1)

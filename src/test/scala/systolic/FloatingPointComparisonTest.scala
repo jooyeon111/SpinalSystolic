@@ -12,11 +12,6 @@ import spinal.core.sim._
  */
 object FloatingPointComparisonTest extends App {
 
-  val spinalConfig = SpinalConfig(defaultConfigForClockDomains = ClockDomainConfig(
-    resetKind = SYNC,
-    resetActiveLevel = HIGH
-  ))
-
   // ============================================================
   // Helper functions
   // ============================================================
@@ -86,10 +81,7 @@ object FloatingPointComparisonTest extends App {
     dataflow = Dataflow.ReuseC
   )
 
-  SimConfig
-    .withConfig(spinalConfig)
-    .withFstWave
-    .workspaceName("BF16_Comparison_Test")
+  TestConfig.createSimConfig("BF16_Comparison_Test")
     .compile(SystolicArray(bf16ConfigReuseB))
     .doSim { dut =>
 
@@ -155,10 +147,7 @@ object FloatingPointComparisonTest extends App {
     dataflow = Dataflow.ReuseC
   )
 
-  SimConfig
-    .withConfig(spinalConfig)
-    .withFstWave
-    .workspaceName("FP16_Comparison_Test")
+  TestConfig.createSimConfig("FP16_Comparison_Test")
     .compile(SystolicArray(fp16ConfigReuseC))
     .doSim { dut =>
 
@@ -227,10 +216,7 @@ object FloatingPointComparisonTest extends App {
     bitWidthOutputC = Some(32)
   )
 
-  SimConfig
-    .withConfig(spinalConfig)
-    .withFstWave
-    .workspaceName("Int_Comparison_Test")
+  TestConfig.createSimConfig("Int_Comparison_Test")
     .compile(SystolicArray(intConfig))
     .doSim { dut =>
 
