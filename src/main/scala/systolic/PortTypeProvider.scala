@@ -62,34 +62,29 @@ trait PortTypeProvider [InputType <: Data, AccType <: Data] {
 
 }
 
-class SignedPortTypeProvider(
-                              val arrayConfig: SystolicArrayConfig,
-                              val bitWidthInputA: Int,
-                              val bitWidthInputB: Int,
-                              val bitWidthSystolicOutputC: Option[Int],
-                            ) extends PortTypeProvider[SInt, SInt]{
+class SignedPortTypeProvider(val arrayConfig: SignedIntConfig) extends PortTypeProvider[SInt, SInt]{
 
   private def safeLog2Up(value: Int): Int = {
     if (value <= 1) 0 else log2Up(value)
   }
 
-  private val multOutputBitWidth: Int = bitWidthInputA + bitWidthInputB
+  private val multOutputBitWidth: Int = arrayConfig.bitWidthA + arrayConfig.bitWidthB
   private val systolicOutputBitwidth: Int = {
     arrayConfig.dataflow match {
       case Dataflow.ReuseA =>
-        multOutputBitWidth + safeLog2Up(arrayConfig.col)
+        multOutputBitWidth + safeLog2Up(arrayConfig.size.col)
       case Dataflow.ReuseB =>
-        multOutputBitWidth + safeLog2Up(arrayConfig.row)
+        multOutputBitWidth + safeLog2Up(arrayConfig.size.row)
       case Dataflow.ReuseC =>
-        assert(bitWidthSystolicOutputC.isDefined,
+        assert(arrayConfig.bitWidthOutputC.isDefined,
           "Reuse C (Output Stationary) dataflow requires explict output bit width")
-        bitWidthSystolicOutputC.get
+        arrayConfig.bitWidthOutputC.get
 
     }
   }
 
-  override def createInputTypeA: SInt = SInt(bitWidthInputA bits)
-  override def createInputTypeB: SInt = SInt(bitWidthInputB bits)
+  override def createInputTypeA: SInt = SInt((arrayConfig.bitWidthA) bits)
+  override def createInputTypeB: SInt = SInt(arrayConfig.bitWidthB bits)
   override def createMultOutputType: SInt = SInt(multOutputBitWidth bits)
 
   override def createPeInputTypeC(index: ProcessingElementIndex): SInt = {
@@ -117,9 +112,9 @@ class SignedPortTypeProvider(
   override def createSystolicOutputTypeC: SInt = {
     arrayConfig.dataflow match {
       case Dataflow.ReuseA =>
-        SInt( (multOutputBitWidth + safeLog2Up(arrayConfig.col)) bits)
+        SInt( (multOutputBitWidth + safeLog2Up(arrayConfig.size.col)) bits)
       case Dataflow.ReuseB =>
-        SInt( (multOutputBitWidth + safeLog2Up(arrayConfig.row)) bits)
+        SInt( (multOutputBitWidth + safeLog2Up(arrayConfig.size.row)) bits)
       case Dataflow.ReuseC =>
         SInt( systolicOutputBitwidth bits )
     }
@@ -128,34 +123,29 @@ class SignedPortTypeProvider(
 
 }
 
-class UnsignedPortTypeProvider(
-                                val arrayConfig: SystolicArrayConfig,
-                                val bitWidthInputA: Int,
-                                val bitWidthInputB: Int,
-                                val bitWidthSystolicOutputC: Option[Int],
-                              ) extends PortTypeProvider[UInt, UInt]{
+class UnsignedPortTypeProvider( val arrayConfig: UnsignedIntConfig) extends PortTypeProvider[UInt, UInt]{
 
   private def safeLog2Up(value: Int): Int = {
     if (value <= 1) 0 else log2Up(value)
   }
 
-  private val multOutputBitWidth: Int = bitWidthInputA + bitWidthInputB
+  private val multOutputBitWidth: Int = arrayConfig.bitWidthA + arrayConfig.bitWidthB
   private val systolicOutputBitwidth: Int = {
     arrayConfig.dataflow match {
       case Dataflow.ReuseA =>
-        multOutputBitWidth + safeLog2Up(arrayConfig.col)
+        multOutputBitWidth + safeLog2Up(arrayConfig.size.col)
       case Dataflow.ReuseB =>
-        multOutputBitWidth + safeLog2Up(arrayConfig.row)
+        multOutputBitWidth + safeLog2Up(arrayConfig.size.row)
       case Dataflow.ReuseC =>
-        assert(bitWidthSystolicOutputC.isDefined,
+        assert(arrayConfig.bitWidthOutputC.isDefined,
           "[error] Output stationary (Reuse C Type) needs external systolic array output bit width")
-        bitWidthSystolicOutputC.get
+        arrayConfig.bitWidthOutputC.get
 
     }
   }
 
-  override def createInputTypeA: UInt = UInt(bitWidthInputA bits)
-  override def createInputTypeB: UInt = UInt(bitWidthInputB bits)
+  override def createInputTypeA: UInt = UInt(arrayConfig.bitWidthA bits)
+  override def createInputTypeB: UInt = UInt(arrayConfig.bitWidthB bits)
   override def createMultOutputType: UInt = UInt(multOutputBitWidth bits)
 
   override def createPeInputTypeC(index: ProcessingElementIndex): UInt = {
@@ -183,9 +173,9 @@ class UnsignedPortTypeProvider(
   override def createSystolicOutputTypeC: UInt = {
     arrayConfig.dataflow match {
       case Dataflow.ReuseA =>
-        UInt( (multOutputBitWidth + safeLog2Up(arrayConfig.col)) bits)
+        UInt( (multOutputBitWidth + safeLog2Up(arrayConfig.size.col)) bits)
       case Dataflow.ReuseB =>
-        UInt( (multOutputBitWidth + safeLog2Up(arrayConfig.row)) bits)
+        UInt( (multOutputBitWidth + safeLog2Up(arrayConfig.size.row)) bits)
       case Dataflow.ReuseC =>
         UInt( systolicOutputBitwidth bits )
     }

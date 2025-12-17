@@ -81,12 +81,18 @@ object FloatingPointComparisonTest extends App {
   println("BFloat16 Systolic Array Test (2x2 ReuseC)")
   println("=" * 60)
 
+  val bf16ConfigReuseB = BFloat16Config(
+    SystolicArraySize.defaultSystolicArraySize,
+    dataflow = Dataflow.ReuseC
+  )
+
   SimConfig
     .withConfig(spinalConfig)
     .withFstWave
     .workspaceName("BF16_Comparison_Test")
-    .compile(BFloat16SystolicArrayTyped(2, 2, Dataflow.ReuseC))
+    .compile(SystolicArray(bf16ConfigReuseB))
     .doSim { dut =>
+
       dut.clockDomain.forkStimulus(10, resetCycles = 2)
 
       def runBF16Test(aVal: Float, bVal: Float): Unit = {
@@ -144,12 +150,18 @@ object FloatingPointComparisonTest extends App {
   println("Float16 Systolic Array Test (2x2 ReuseC)")
   println("=" * 60)
 
+  val fp16ConfigReuseC = Float16Config(
+    size = SystolicArraySize(2,2),
+    dataflow = Dataflow.ReuseC
+  )
+
   SimConfig
     .withConfig(spinalConfig)
     .withFstWave
     .workspaceName("FP16_Comparison_Test")
-    .compile(Float16SystolicArrayTyped(2, 2, Dataflow.ReuseC))
+    .compile(SystolicArray(fp16ConfigReuseC))
     .doSim { dut =>
+
       dut.clockDomain.forkStimulus(10, resetCycles = 2)
 
       def runFP16Test(aVal: Float, bVal: Float): Unit = {
@@ -207,9 +219,8 @@ object FloatingPointComparisonTest extends App {
   println("Integer Systolic Array Test (2x2 ReuseC, 8-bit)")
   println("=" * 60)
 
-  val intConfig = SystolicArrayConfig.signedInteger(
-    row = 2,
-    col = 2,
+  val intConfig = SignedIntConfig(
+    size = SystolicArraySize(2,2),
     dataflow = Dataflow.ReuseC,
     bitWidthA = 8,
     bitWidthB = 8,
@@ -220,8 +231,9 @@ object FloatingPointComparisonTest extends App {
     .withConfig(spinalConfig)
     .withFstWave
     .workspaceName("Int_Comparison_Test")
-    .compile(SystolicArray(intConfig).asInstanceOf[SystolicArray[SInt]])
+    .compile(SystolicArray(intConfig))
     .doSim { dut =>
+
       dut.clockDomain.forkStimulus(10, resetCycles = 2)
 
       def runIntTest(aVal: Int, bVal: Int): Unit = {

@@ -31,6 +31,7 @@ import systolic.Arithmetic._
  * @param portType Implicit port type provider
  * @tparam T Data type for computation
  */
+
 object ProcessingElement {
 
   def apply(dataflow: Dataflow.Value): ProcessingElement[SInt, SInt] = {
@@ -41,20 +42,16 @@ object ProcessingElement {
 
     implicit val arithmetic: Arithmetic[SInt, SInt] = sIntArithmetic
 
-    val arrayConfig = SystolicArrayConfig.signedInteger(
-      row = 1,
-      col = 1,
-      dataflow = dataflow,
+    val arrayConfig = SignedIntConfig(
+      SystolicArraySize.defaultSystolicArraySize,
+      dataflow,
       defaultBitWidth.bitWidthInputA,
       defaultBitWidth.bitWidthInputB,
       defaultBitWidth.bitWidthSystolicOutputC,
     )
 
     implicit val portType: PortTypeProvider[SInt, SInt] = new SignedPortTypeProvider(
-      arrayConfig = arrayConfig,
-      bitWidthInputA = defaultBitWidth.bitWidthInputA,
-      bitWidthInputB = defaultBitWidth.bitWidthInputB,
-      bitWidthSystolicOutputC = defaultBitWidth.bitWidthSystolicOutputC
+      arrayConfig = arrayConfig
     )
 
     new ProcessingElement[SInt, SInt](defaultIndex, portEnableMask, dataflow)(arithmetic, portType)

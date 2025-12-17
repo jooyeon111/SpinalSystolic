@@ -11,65 +11,115 @@ import systolic.Float16Arithmetic._
  * Creates systolic arrays for different data types:
  * - Signed Integer (SInt)
  * - Unsigned Integer (UInt)
- * TODO change bits to floating point type
  * - BFloat16 with FP32 accumulation (Bits)
  * - FP16 with FP32 accumulation (Bits)
  */
+//object SystolicArray {
+//
+//  def apply(arrayConfig: SystolicArrayConfig): SystolicArray[_ <: Data, _ <: Data] = {
+//    arrayConfig.dataTypeConfig match {
+//      case intConfig: IntegerDataTypeConfig =>
+//        createIntegerArray(arrayConfig, intConfig)
+//
+//      case _: BFloat16DataTypeConfig =>
+//        createBFloat16Array(arrayConfig)
+//
+//      case _: Float16DataTypeConfig =>
+//        createFloat16Array(arrayConfig)
+//    }
+//  }
+//
+//  private def createIntegerArray(
+//                                  arrayConfig: SystolicArrayConfig,
+//                                  intConfig: IntegerDataTypeConfig
+//                                ): SystolicArray[_ <: Data, _ <: Data] = {
+//    val bitWidthPair = intConfig.portBitWidthInfo
+//
+//    intConfig.integerType match {
+//      case IntegerType.SignedInteger =>
+//        implicit val arithmetic: Arithmetic[SInt, SInt] = sIntArithmetic
+//        implicit val portType: PortTypeProvider[SInt, SInt] = new SignedPortTypeProvider(
+//          arrayConfig,
+//          bitWidthPair.bitWidthInputA,
+//          bitWidthPair.bitWidthInputB,
+//          bitWidthPair.bitWidthSystolicOutputC
+//        )
+//        new SystolicArray[SInt, SInt](arrayConfig)(arithmetic, portType)
+//
+//      case IntegerType.UnsignedInteger =>
+//        implicit val arithmetic: Arithmetic[UInt, UInt] = uIntArithmetic
+//        implicit val portType: PortTypeProvider[UInt, UInt] = new UnsignedPortTypeProvider(
+//          arrayConfig,
+//          bitWidthPair.bitWidthInputA,
+//          bitWidthPair.bitWidthInputB,
+//          bitWidthPair.bitWidthSystolicOutputC
+//        )
+//        new SystolicArray[UInt, UInt](arrayConfig)(arithmetic, portType)
+//    }
+//  }
+//
+//  private def createBFloat16Array(arrayConfig: SystolicArrayConfig): SystolicArray[_ <: Data, _ <: Data] = {
+//    implicit val arithmetic: Arithmetic[BFloat16, Float32] = bf16Fp32Arithmetic
+//    implicit val portType: PortTypeProvider[BFloat16, Float32] = new BFloat16PortTypeProvider(arrayConfig)
+//    new SystolicArray[BFloat16, Float32](arrayConfig)(arithmetic, portType)
+//  }
+//
+//  private def createFloat16Array(arrayConfig: SystolicArrayConfig): SystolicArray[_ <: Data, _ <: Data] = {
+//    implicit val arithmetic: Arithmetic[Float16, Float32] = fp16Fp32Arithmetic
+//    implicit val portType: PortTypeProvider[Float16, Float32] = new Float16PortTypeProvider(arrayConfig)
+//    new SystolicArray[Float16, Float32](arrayConfig)(arithmetic, portType)
+//  }
+//
+//  object Sim {
+//    def asBFloat16(arrayConfig: SystolicArrayConfig): SystolicArray[BFloat16, Float32] = {
+//      require(arrayConfig.isBFloat16, "Must be BFloat16 config")
+//      SystolicArray(arrayConfig).asInstanceOf[SystolicArray[BFloat16, Float32]]
+//    }
+//
+//    def asFloat16(arrayConfig: SystolicArrayConfig): SystolicArray[Float16, Float32] = {
+//      require(arrayConfig.isFloat16, "Must be Float16 config")
+//      SystolicArray(arrayConfig).asInstanceOf[SystolicArray[Float16, Float32]]
+//    }
+//
+//    def asSignedInt(arrayConfig: SystolicArrayConfig): SystolicArray[SInt, SInt] = {
+//      require(arrayConfig.isInteger, "Must be integer type")
+//      SystolicArray(arrayConfig).asInstanceOf[SystolicArray[SInt, SInt]]
+//    }
+//
+//    def asUnsignedInt(arrayConfig: SystolicArrayConfig): SystolicArray[UInt, UInt] = {
+//      require(arrayConfig.isInteger, "Must be integer type")
+//      SystolicArray(arrayConfig).asInstanceOf[SystolicArray[UInt, UInt]]
+//    }
+//  }
+//
+//}
+
 object SystolicArray {
 
-  def apply(arrayConfig: SystolicArrayConfig): Component = {
-    arrayConfig.dataTypeConfig match {
-      case intConfig: IntegerDataTypeConfig =>
-        createIntegerArray(arrayConfig, intConfig)
-
-      case _: BFloat16DataTypeConfig =>
-        createBFloat16Array(arrayConfig)
-
-      case _: Float16DataTypeConfig =>
-        createFloat16Array(arrayConfig)
-    }
-  }
-
-  private def createIntegerArray(
-                                  arrayConfig: SystolicArrayConfig,
-                                  intConfig: IntegerDataTypeConfig
-                                ): Component = {
-    val bitWidthPair = intConfig.portBitWidthInfo
-
-    intConfig.integerType match {
-      case IntegerType.SignedInteger =>
-        implicit val arithmetic: Arithmetic[SInt, SInt] = sIntArithmetic
-        implicit val portType: PortTypeProvider[SInt, SInt] = new SignedPortTypeProvider(
-          arrayConfig,
-          bitWidthPair.bitWidthInputA,
-          bitWidthPair.bitWidthInputB,
-          bitWidthPair.bitWidthSystolicOutputC
-        )
-        new SystolicArray[SInt, SInt](arrayConfig)(arithmetic, portType)
-
-      case IntegerType.UnsignedInteger =>
-        implicit val arithmetic: Arithmetic[UInt, UInt] = uIntArithmetic
-        implicit val portType: PortTypeProvider[UInt, UInt] = new UnsignedPortTypeProvider(
-          arrayConfig,
-          bitWidthPair.bitWidthInputA,
-          bitWidthPair.bitWidthInputB,
-          bitWidthPair.bitWidthSystolicOutputC
-        )
-        new SystolicArray[UInt, UInt](arrayConfig)(arithmetic, portType)
-    }
-  }
-
-  private def createBFloat16Array(arrayConfig: SystolicArrayConfig): Component = {
+  def apply(config: BFloat16Config): SystolicArray[BFloat16, Float32] = {
     implicit val arithmetic: Arithmetic[BFloat16, Float32] = bf16Fp32Arithmetic
-    implicit val portType: PortTypeProvider[BFloat16, Float32] = new BFloat16PortTypeProvider(arrayConfig)
-    new SystolicArray[BFloat16, Float32](arrayConfig)(arithmetic, portType)
+    implicit val portType: BFloat16PortTypeProvider = new BFloat16PortTypeProvider(config)
+    new SystolicArray[BFloat16, Float32](config)(arithmetic, portType)
   }
 
-  private def createFloat16Array(arrayConfig: SystolicArrayConfig): Component = {
+  def apply(config: Float16Config): SystolicArray[Float16, Float32] = {
     implicit val arithmetic: Arithmetic[Float16, Float32] = fp16Fp32Arithmetic
-    implicit val portType: PortTypeProvider[Float16, Float32] = new Float16PortTypeProvider(arrayConfig)
-    new SystolicArray[Float16, Float32](arrayConfig)(arithmetic, portType)
+    implicit val portType: Float16PortTypeProvider = new Float16PortTypeProvider(config)
+    new SystolicArray[Float16, Float32](config)(arithmetic, portType)
   }
+
+  def apply(config: SignedIntConfig): SystolicArray[SInt, SInt] = {
+    implicit val arithmetic: Arithmetic[SInt, SInt] = sIntArithmetic
+    implicit val portType: SignedPortTypeProvider = new SignedPortTypeProvider(config)
+    new SystolicArray[SInt, SInt](config)(arithmetic, portType)
+  }
+
+  def apply(config: UnsignedIntConfig): SystolicArray[UInt, UInt] = {  // ✅ Unsigned 처리
+    implicit val arithmetic: Arithmetic[UInt, UInt] = uIntArithmetic
+    implicit val portType: UnsignedPortTypeProvider = new UnsignedPortTypeProvider(config)
+    new SystolicArray[UInt, UInt](config)(arithmetic, portType)
+  }
+
 }
 
 /**
@@ -88,64 +138,71 @@ class SystolicArray[InputType <: Data, AccType <: Data](
                               ) extends Component {
 
   // Set definition name based on data type and configuration
-  private val dataTypeName = arrayConfig.dataTypeConfig match {
-    case _: BFloat16DataTypeConfig => "BF16"
-    case _: Float16DataTypeConfig => "FP16"
-    case ic: IntegerDataTypeConfig => ic.integerType match {
-      case IntegerType.SignedInteger => "SInt"
-      case IntegerType.UnsignedInteger => "UInt"
-    }
+//  private val dataTypeName = arrayConfig.dataTypeConfig match {
+//    case _: BFloat16DataTypeConfig => "BF16"
+//    case _: Float16DataTypeConfig => "FP16"
+//    case ic: IntegerDataTypeConfig => ic.integerType match {
+//      case IntegerType.SignedInteger => "SInt"
+//      case IntegerType.UnsignedInteger => "UInt"
+//    }
+//  }
+
+  private val dataTypeName = arrayConfig match {
+    case _: BFloat16Config => "BF16"
+    case _: Float16Config => "FP16"
+    case _: SignedIntConfig => "SInt"
+    case _: UnsignedIntConfig => "UInt"
   }
 
-  setDefinitionName(s"${dataTypeName}_${arrayConfig.dataflow}_SystolicArray_${arrayConfig.row}x${arrayConfig.col}")
+  setDefinitionName(s"${dataTypeName}_${arrayConfig.dataflow}_SystolicArray_${arrayConfig.size.row}x${arrayConfig.size.col}")
 
   private def buildOutputNum: Int = {
     arrayConfig.dataflow match {
       case Dataflow.ReuseA =>
-        arrayConfig.row
+        arrayConfig.size.row
       case Dataflow.ReuseB =>
-        arrayConfig.col
+        arrayConfig.size.col
       case Dataflow.ReuseC =>
-        arrayConfig.row + arrayConfig.col - 1
+        arrayConfig.size.row + arrayConfig.size.col - 1
     }
   }
 
   val io = new Bundle {
-    val inputA = in Vec(portType.createInputTypeA, arrayConfig.row)
-    val inputB = in Vec(portType.createInputTypeB, arrayConfig.col)
+    val inputA = in Vec(portType.createInputTypeA, arrayConfig.size.row)
+    val inputB = in Vec(portType.createInputTypeB, arrayConfig.size.col)
 
     val inputCaptureEnableA = (arrayConfig.dataflow == Dataflow.ReuseA) generate in {
-      Vec.fill(arrayConfig.row, arrayConfig.col){Bool()}
+      Vec.fill(arrayConfig.size.row, arrayConfig.size.col){Bool()}
     }
 
     val inputCaptureEnableB = (arrayConfig.dataflow == Dataflow.ReuseB) generate in {
-      Vec.fill(arrayConfig.row, arrayConfig.col){Bool()}
+      Vec.fill(arrayConfig.size.row, arrayConfig.size.col){Bool()}
     }
 
     val outputCaptureEnableC = (arrayConfig.dataflow == Dataflow.ReuseC) generate in {
-      Vec.fill(arrayConfig.row, arrayConfig.col){Bool()}
+      Vec.fill(arrayConfig.size.row, arrayConfig.size.col){Bool()}
     }
 
     val resetPartialC = (arrayConfig.dataflow == Dataflow.ReuseC) generate in {
-      Vec.fill(arrayConfig.row, arrayConfig.col){Bool()}
+      Vec.fill(arrayConfig.size.row, arrayConfig.size.col){Bool()}
     }
 
     val outputC = out Vec(portType.createSystolicOutputTypeC, buildOutputNum)
   }
 
-  val pes = Array.tabulate(arrayConfig.row, arrayConfig.col) { (r,c) =>
+  val pes = Array.tabulate(arrayConfig.size.row, arrayConfig.size.col) { (r,c) =>
 
     val index = ProcessingElementIndex(r,c)
 
-    val withOutputPortA = !index.isLastPeCol(arrayConfig.col)
-    val withOutputPortB = !index.isLastPeRow(arrayConfig.row)
+    val withOutputPortA = !index.isLastPeCol(arrayConfig.size.col)
+    val withOutputPortB = !index.isLastPeRow(arrayConfig.size.row)
     val withInputPortC = arrayConfig.dataflow match {
       case Dataflow.ReuseA =>
         !index.isFirstCol
       case Dataflow.ReuseB =>
         !index.isFirstRow
       case Dataflow.ReuseC =>
-        if (r > 0 && c < arrayConfig.col - 1) {
+        if (r > 0 && c < arrayConfig.size.col - 1) {
           canConnectDiagonally(r - 1, c + 1)
         } else {
           false
@@ -169,12 +226,12 @@ class SystolicArray[InputType <: Data, AccType <: Data](
   private def wireA(): Unit = {
     arrayConfig.dataflow match {
       case Dataflow.ReuseA =>
-        for(r <- 0 until arrayConfig.row)
+        for(r <- 0 until arrayConfig.size.row)
           pes(r)(0).io.inputA := RegNext(io.inputA(r))
 
         for{
-          r <- 0 until arrayConfig.row
-          c <- 1 until arrayConfig.col
+          r <- 0 until arrayConfig.size.row
+          c <- 1 until arrayConfig.size.col
         } {
           pes(r)(c).io.inputA := pes(r)(c-1).io.outputA
         }
@@ -183,16 +240,16 @@ class SystolicArray[InputType <: Data, AccType <: Data](
 
         val tileType = TileType.TypeA
 
-        val skewBuffer = new SkewBuffer(tileType, portType.createInputTypeA, arrayConfig.row)
+        val skewBuffer = new SkewBuffer(tileType, portType.createInputTypeA, arrayConfig.size.row)
 
-        for(r <- 0 until arrayConfig.row){
+        for(r <- 0 until arrayConfig.size.row){
           skewBuffer.io.input(r) := io.inputA(r)
           pes(r)(0).io.inputA := skewBuffer.io.output(r)
         }
 
         for{
-          r <- 0 until arrayConfig.row
-          c <- 1 until arrayConfig.col
+          r <- 0 until arrayConfig.size.row
+          c <- 1 until arrayConfig.size.col
         } {
           pes(r)(c).io.inputA := pes(r)(c-1).io.outputA
         }
@@ -205,27 +262,27 @@ class SystolicArray[InputType <: Data, AccType <: Data](
 
         val tileType = TileType.TypeB
 
-        val skewBuffer = new SkewBuffer(tileType, portType.createInputTypeB, arrayConfig.col)
+        val skewBuffer = new SkewBuffer(tileType, portType.createInputTypeB, arrayConfig.size.col)
 
-        for(c <- 0 until arrayConfig.col){
+        for(c <- 0 until arrayConfig.size.col){
           skewBuffer.io.input(c) := io.inputB(c)
           pes(0)(c).io.inputB := skewBuffer.io.output(c)
         }
 
         for{
-          r <- 1 until arrayConfig.row
-          c <- 0 until arrayConfig.col
+          r <- 1 until arrayConfig.size.row
+          c <- 0 until arrayConfig.size.col
         } {
           pes(r)(c).io.inputB := pes(r-1)(c).io.outputB
         }
 
       case Dataflow.ReuseB =>
-        for(c <- 0 until arrayConfig.col)
+        for(c <- 0 until arrayConfig.size.col)
           pes(0)(c).io.inputB := RegNext(io.inputB(c))
 
         for{
-          r <- 1 until arrayConfig.row
-          c <- 0 until arrayConfig.col
+          r <- 1 until arrayConfig.size.row
+          c <- 0 until arrayConfig.size.col
         } {
           pes(r)(c).io.inputB := pes(r-1)(c).io.outputB
         }
@@ -236,24 +293,24 @@ class SystolicArray[InputType <: Data, AccType <: Data](
     arrayConfig.dataflow match {
       case Dataflow.ReuseA =>
         for {
-          r <- 0 until arrayConfig.row
-          c <- 0 until arrayConfig.col
+          r <- 0 until arrayConfig.size.row
+          c <- 0 until arrayConfig.size.col
         } {
           pes(r)(c).io.inputCaptureEnableA := io.inputCaptureEnableA(r)(c)
         }
 
       case Dataflow.ReuseB =>
         for {
-          r <- 0 until arrayConfig.row
-          c <- 0 until arrayConfig.col
+          r <- 0 until arrayConfig.size.row
+          c <- 0 until arrayConfig.size.col
         } {
           pes(r)(c).io.inputCaptureEnableB := io.inputCaptureEnableB(r)(c)
         }
 
       case Dataflow.ReuseC =>
         for {
-          r <- 0 until arrayConfig.row
-          c <- 0 until arrayConfig.col
+          r <- 0 until arrayConfig.size.row
+          c <- 0 until arrayConfig.size.col
         } {
           pes(r)(c).io.outputCaptureEnableC := io.outputCaptureEnableC(r)(c)
           pes(r)(c).io.resetPartialC := io.resetPartialC(r)(c)
@@ -269,19 +326,19 @@ class SystolicArray[InputType <: Data, AccType <: Data](
         val deskewBuffer = new SkewBuffer(
           tileType = tileType,
           inputType = portType.createSystolicOutputTypeC,
-          delayDepth = arrayConfig.row,
+          delayDepth = arrayConfig.size.row,
           isMinDepthFirst = false
         )
 
         for {
-          r <- 0 until arrayConfig.row
-          c <- 1 until arrayConfig.col
+          r <- 0 until arrayConfig.size.row
+          c <- 1 until arrayConfig.size.col
         } {
           pes(r)(c).io.inputC := pes(r)(c-1).io.outputC
         }
 
-        for (r <- 0 until arrayConfig.row) {
-          deskewBuffer.io.input(r) := pes(r)(arrayConfig.col - 1).io.outputC
+        for (r <- 0 until arrayConfig.size.row) {
+          deskewBuffer.io.input(r) := pes(r)(arrayConfig.size.col - 1).io.outputC
           io.outputC(r) := deskewBuffer.io.output(r)
         }
 
@@ -289,19 +346,19 @@ class SystolicArray[InputType <: Data, AccType <: Data](
         val deskewBuffer = new SkewBuffer(
           tileType = tileType,
           inputType = portType.createSystolicOutputTypeC,
-          delayDepth = arrayConfig.col,
+          delayDepth = arrayConfig.size.col,
           isMinDepthFirst = false
         )
 
         for {
-          r <- 1 until arrayConfig.row
-          c <- 0 until arrayConfig.col
+          r <- 1 until arrayConfig.size.row
+          c <- 0 until arrayConfig.size.col
         } {
           pes(r)(c).io.inputC := pes(r-1)(c).io.outputC
         }
 
-        for (c <- 0 until arrayConfig.col) {
-          deskewBuffer.io.input(c) := pes(arrayConfig.row - 1)(c).io.outputC
+        for (c <- 0 until arrayConfig.size.col) {
+          deskewBuffer.io.input(c) := pes(arrayConfig.size.row - 1)(c).io.outputC
           io.outputC(c) := deskewBuffer.io.output(c)
         }
 
@@ -313,8 +370,8 @@ class SystolicArray[InputType <: Data, AccType <: Data](
         )
 
         for {
-          r <- 0 until arrayConfig.row
-          c <- 0 until arrayConfig.col
+          r <- 0 until arrayConfig.size.row
+          c <- 0 until arrayConfig.size.col
         } {
           // Connect diagonal PE connections
           if (canConnectDiagonally(r, c)) {
@@ -336,12 +393,12 @@ class SystolicArray[InputType <: Data, AccType <: Data](
   private def getOutputIndex(r: Int, c: Int): Int = {
     if (r == 0 && c == 0) {
       0
-    } else if (r > 0 && r < arrayConfig.row && c == 0) {
+    } else if (r > 0 && r < arrayConfig.size.row && c == 0) {
       r
-    } else if (r == arrayConfig.row - 1 && c > 0 && c < arrayConfig.col - 1) {
-      arrayConfig.row + c - 1
-    } else if (r == arrayConfig.row - 1 && c == arrayConfig.col - 1) {
-      arrayConfig.row + arrayConfig.col - 2
+    } else if (r == arrayConfig.size.row - 1 && c > 0 && c < arrayConfig.size.col - 1) {
+      arrayConfig.size.row + c - 1
+    } else if (r == arrayConfig.size.row - 1 && c == arrayConfig.size.col - 1) {
+      arrayConfig.size.row + arrayConfig.size.col - 2
     } else {
       throw new Exception(s"Invalid output position: ($r, $c)")
     }
@@ -349,17 +406,17 @@ class SystolicArray[InputType <: Data, AccType <: Data](
 
   private def isOutputPosition(r: Int, c: Int): Boolean = {
     val isFirstElement = r == 0 && c == 0
-    val isLeftOrBottomEdge = (0 < r && r < arrayConfig.row && c == 0) ||
-      (r == arrayConfig.row - 1 && 0 < c && c < arrayConfig.col - 1)
-    val isLastElement = r == arrayConfig.row - 1 && c == arrayConfig.col - 1
+    val isLeftOrBottomEdge = (0 < r && r < arrayConfig.size.row && c == 0) ||
+      (r == arrayConfig.size.row - 1 && 0 < c && c < arrayConfig.size.col - 1)
+    val isLastElement = r == arrayConfig.size.row - 1 && c == arrayConfig.size.col - 1
 
     isFirstElement || isLeftOrBottomEdge || isLastElement
   }
 
   private def canConnectDiagonally(r: Int, c: Int): Boolean = {
-    val isRightEdgeExceptLast = (0 <= r && r < arrayConfig.row - 1 && c == arrayConfig.col - 1)
-    val isTopEdgeExceptFirst = (r == 0 && 0 < c && c < arrayConfig.col - 1)
-    val isMiddle = (0 < r && r < arrayConfig.row - 1 && 0 < c && c < arrayConfig.col - 1)
+    val isRightEdgeExceptLast = (0 <= r && r < arrayConfig.size.row - 1 && c == arrayConfig.size.col - 1)
+    val isTopEdgeExceptFirst = (r == 0 && 0 < c && c < arrayConfig.size.col - 1)
+    val isMiddle = (0 < r && r < arrayConfig.size.row - 1 && 0 < c && c < arrayConfig.size.col - 1)
 
     isRightEdgeExceptLast || isTopEdgeExceptFirst || isMiddle
   }

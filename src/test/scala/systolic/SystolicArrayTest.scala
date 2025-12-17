@@ -13,9 +13,8 @@ object SystolicArrayTest extends App {
 
   val defaultBitWidth = PortBitWidthInfo.default8bitInputWith32bitOutput
 
-  val systolicConfigReuseA = SystolicArrayConfig.signedInteger(
-    row = 4,
-    col = 4,
+  val systolicConfigReuseA = SignedIntConfig(
+    SystolicArraySize.defaultSystolicArraySize,
     dataflow = Dataflow.ReuseA,
     defaultBitWidth.bitWidthInputA,
     defaultBitWidth.bitWidthInputB,
@@ -28,20 +27,18 @@ object SystolicArrayTest extends App {
     .compile(SystolicArray(systolicConfigReuseA))
     .doSim{ dut =>
 
-      val signedDut = dut.asInstanceOf[SystolicArray[SInt]]
-
-      signedDut.clockDomain.forkStimulus(10, resetCycles = 2)
+      dut.clockDomain.forkStimulus(10, resetCycles = 2)
       // Initialize all inputs
       for (r <- 0 until 4) {
-        signedDut.io.inputA(r) #= 0
+        dut.io.inputA(r) #= 0
         for (c <- 0 until 4) {
-          signedDut.io.inputCaptureEnableA(r)(c) #= false
+          dut.io.inputCaptureEnableA(r)(c) #= false
         }
       }
       for (c <- 0 until 4) {
-        signedDut.io.inputB(c) #= 0
+        dut.io.inputB(c) #= 0
       }
-      signedDut.clockDomain.waitSampling(2)
+      dut.clockDomain.waitSampling(2)
 
       println("\n=== ReuseA Test: Matrix Multiplication ===")
       println("Matrix A (4x4):")
@@ -59,15 +56,15 @@ object SystolicArrayTest extends App {
       println("\n--- Loading weights into array ---")
       for (c <- 0 until 4) {
         for (r <- 0 until 4) {
-          signedDut.io.inputA(r) #= (r * 4 + c + 1)
-          signedDut.io.inputCaptureEnableA(r)(c) #= true
+          dut.io.inputA(r) #= (r * 4 + c + 1)
+          dut.io.inputCaptureEnableA(r)(c) #= true
         }
-        signedDut.clockDomain.waitSampling(1)
+        dut.clockDomain.waitSampling(1)
         for (r <- 0 until 4) {
-          signedDut.io.inputCaptureEnableA(r)(c) #= false
+          dut.io.inputCaptureEnableA(r)(c) #= false
         }
       }
-      signedDut.clockDomain.waitSampling(1)
+      dut.clockDomain.waitSampling(1)
 
       // Feed input data (Identity matrix for simplicity)
       println("\n--- Feeding input data ---")
@@ -81,30 +78,29 @@ object SystolicArrayTest extends App {
       for (cycle <- 0 until 8) {
         for (c <- 0 until 4) {
           if (cycle < 4) {
-            signedDut.io.inputB(c) #= inputSequence(cycle)(c)
+            dut.io.inputB(c) #= inputSequence(cycle)(c)
           } else {
-            signedDut.io.inputB(c) #= 0
+            dut.io.inputB(c) #= 0
           }
         }
-        signedDut.clockDomain.waitSampling(1)
+        dut.clockDomain.waitSampling(1)
       }
 
       // Wait for results to propagate
-      signedDut.clockDomain.waitSampling(5)
+      dut.clockDomain.waitSampling(5)
 
       // Read outputs
       println("\n--- Output Results ---")
       for (r <- 0 until 4) {
-        println(s"Output Row $r: ${signedDut.io.outputC(r).toInt}")
+        println(s"Output Row $r: ${dut.io.outputC(r).toInt}")
       }
 
-      signedDut.clockDomain.waitSampling(5)
+      dut.clockDomain.waitSampling(5)
       simSuccess()
     }
 
-  val systolicConfigReuseB = SystolicArrayConfig.signedInteger(
-    row = 4,
-    col = 4,
+  val systolicConfigReuseB = SignedIntConfig(
+    SystolicArraySize.defaultSystolicArraySize,
     dataflow = Dataflow.ReuseB,
     defaultBitWidth.bitWidthInputA,
     defaultBitWidth.bitWidthInputB,
@@ -117,21 +113,19 @@ object SystolicArrayTest extends App {
     .compile(SystolicArray(systolicConfigReuseB))
     .doSim{ dut =>
 
-      val signedDut = dut.asInstanceOf[SystolicArray[SInt]]
-
-      signedDut.clockDomain.forkStimulus(10, resetCycles = 2)
+      dut.clockDomain.forkStimulus(10, resetCycles = 2)
 
       // Initialize all inputs
       for (r <- 0 until 4) {
-        signedDut.io.inputA(r) #= 0
+        dut.io.inputA(r) #= 0
         for (c <- 0 until 4) {
-          signedDut.io.inputCaptureEnableB(r)(c) #= false
+          dut.io.inputCaptureEnableB(r)(c) #= false
         }
       }
       for (c <- 0 until 4) {
-        signedDut.io.inputB(c) #= 0
+        dut.io.inputB(c) #= 0
       }
-      signedDut.clockDomain.waitSampling(2)
+      dut.clockDomain.waitSampling(2)
 
       println("\n=== ReuseB Test: Matrix Multiplication ===")
       println("Loading Matrix B (weights) into columns")
@@ -140,15 +134,15 @@ object SystolicArrayTest extends App {
       println("\n--- Loading weights into array ---")
       for (r <- 0 until 4) {
         for (c <- 0 until 4) {
-          signedDut.io.inputB(c) #= (c * 4 + r + 1)
-          signedDut.io.inputCaptureEnableB(r)(c) #= true
+          dut.io.inputB(c) #= (c * 4 + r + 1)
+          dut.io.inputCaptureEnableB(r)(c) #= true
         }
-        signedDut.clockDomain.waitSampling(1)
+        dut.clockDomain.waitSampling(1)
         for (c <- 0 until 4) {
-          signedDut.io.inputCaptureEnableB(r)(c) #= false
+          dut.io.inputCaptureEnableB(r)(c) #= false
         }
       }
-      signedDut.clockDomain.waitSampling(1)
+      dut.clockDomain.waitSampling(1)
 
       // Feed input data
       println("\n--- Feeding input data ---")
@@ -162,30 +156,29 @@ object SystolicArrayTest extends App {
       for (cycle <- 0 until 8) {
         for (r <- 0 until 4) {
           if (cycle < 4) {
-            signedDut.io.inputA(r) #= inputDataA(r)(cycle)
+            dut.io.inputA(r) #= inputDataA(r)(cycle)
           } else {
-            signedDut.io.inputA(r) #= 0
+            dut.io.inputA(r) #= 0
           }
         }
-        signedDut.clockDomain.waitSampling(1)
+        dut.clockDomain.waitSampling(1)
       }
 
       // Wait for results to propagate
-      signedDut.clockDomain.waitSampling(5)
+      dut.clockDomain.waitSampling(5)
 
       // Read outputs
       println("\n--- Output Results ---")
       for (c <- 0 until 4) {
-        println(s"Output Col $c: ${signedDut.io.outputC(c).toInt}")
+        println(s"Output Col $c: ${dut.io.outputC(c).toInt}")
       }
 
-      signedDut.clockDomain.waitSampling(5)
+      dut.clockDomain.waitSampling(5)
       simSuccess()
     }
 
-  val systolicConfigReuseC = SystolicArrayConfig.signedInteger(
-    row = 4,
-    col = 4,
+  val systolicConfigReuseC = SignedIntConfig(
+    SystolicArraySize.defaultSystolicArraySize,
     dataflow = Dataflow.ReuseC,
     defaultBitWidth.bitWidthInputA,
     defaultBitWidth.bitWidthInputB,
@@ -200,22 +193,20 @@ object SystolicArrayTest extends App {
     .compile(SystolicArray(systolicConfigReuseC))
     .doSim{ dut =>
 
-      val signedDut = dut.asInstanceOf[SystolicArray[SInt]]
-
-      signedDut.clockDomain.forkStimulus(10, resetCycles = 2)
+      dut.clockDomain.forkStimulus(10, resetCycles = 2)
 
       // Initialize all inputs
       for (r <- 0 until 4) {
-        signedDut.io.inputA(r) #= 0
+        dut.io.inputA(r) #= 0
         for (c <- 0 until 4) {
-          signedDut.io.outputCaptureEnableC(r)(c) #= true
-          signedDut.io.resetPartialC(r)(c) #= true
+          dut.io.outputCaptureEnableC(r)(c) #= true
+          dut.io.resetPartialC(r)(c) #= true
         }
       }
       for (c <- 0 until 4) {
-        signedDut.io.inputB(c) #= 0
+        dut.io.inputB(c) #= 0
       }
-      signedDut.clockDomain.waitSampling(2)
+      dut.clockDomain.waitSampling(2)
 
       println("\n=== ReuseC Test: Matrix Multiplication with Accumulation ===")
       println("Computing C = A × B where results accumulate in each PE")
@@ -248,7 +239,7 @@ object SystolicArrayTest extends App {
       println("\n--- Initializing accumulation (reset) ---")
       for (r <- 0 until 4) {
         for (c <- 0 until 4) {
-          signedDut.io.resetPartialC(r)(c) #= true
+          dut.io.resetPartialC(r)(c) #= true
         }
       }
       dut.clockDomain.waitSampling(1)
@@ -260,33 +251,33 @@ object SystolicArrayTest extends App {
 
         // Set inputs for this step
         for (r <- 0 until 4) {
-          signedDut.io.inputA(r) #= matrixA(r)(k)
+          dut.io.inputA(r) #= matrixA(r)(k)
         }
         for (c <- 0 until 4) {
-          signedDut.io.inputB(c) #= matrixB(k)(c)
+          dut.io.inputB(c) #= matrixB(k)(c)
         }
 
         // First iteration resets, subsequent iterations accumulate
         for (r <- 0 until 4) {
           for (c <- 0 until 4) {
-            signedDut.io.resetPartialC(r)(c) #= (k == 0)
+            dut.io.resetPartialC(r)(c) #= (k == 0)
           }
         }
 
-        signedDut.clockDomain.waitSampling(1)
+        dut.clockDomain.waitSampling(1)
       }
 
       // Wait for final results to stabilize
-      signedDut.clockDomain.waitSampling(10)
+      dut.clockDomain.waitSampling(10)
 
       // Read and display outputs
       println("\n--- Final Output Results ---")
       val numOutputs = 4 + 4 - 1  // row + col - 1
       for (i <- 0 until numOutputs) {
-        println(s"Output $i: ${signedDut.io.outputC(i).toInt}")
+        println(s"Output $i: ${dut.io.outputC(i).toInt}")
       }
 
-      signedDut.clockDomain.waitSampling(5)
+      dut.clockDomain.waitSampling(5)
       simSuccess()
     }
 

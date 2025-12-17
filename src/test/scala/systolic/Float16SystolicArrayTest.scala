@@ -74,9 +74,8 @@ object Float16SystolicArrayTest extends App {
   // ============================================================
   println("=== Testing FP16 Systolic Array with FP32 Accumulation ===")
 
-  val fp16ConfigReuseC = SystolicArrayConfig.float16(
-    row = 2,
-    col = 2,
+  val fp16ConfigReuseC = Float16Config(
+    SystolicArraySize.defaultSystolicArraySize,
     dataflow = Dataflow.ReuseC
   )
 
@@ -84,8 +83,9 @@ object Float16SystolicArrayTest extends App {
     .withConfig(spinalConfig)
     .withFstWave
     .workspaceName("FP16_ReuseC_Test")
-    .compile(Float16SystolicArrayTyped(fp16ConfigReuseC))
+    .compile(SystolicArray(fp16ConfigReuseC))
     .doSim { dut =>
+
       dut.clockDomain.forkStimulus(10, resetCycles = 2)
 
       // Initialize
@@ -113,7 +113,7 @@ object Float16SystolicArrayTest extends App {
       val fp16_2_0_exp = 16   // bias 15, so exponent = 1
       val fp16_2_0_mant = 0
 
-      val fp16_3_0_exp = 16   // bias 15, so exponent = 1  
+      val fp16_3_0_exp = 16   // bias 15, so exponent = 1
       val fp16_3_0_mant = 512 // 0.5 in mantissa -> 1.5 total
 
       dut.io.inputA(0).sign #= false
@@ -252,9 +252,8 @@ object Float16SystolicArrayTest extends App {
   // ============================================================
   println("\n=== Testing FP16 ReuseA (Weight Stationary) ===")
 
-  val fp16ConfigReuseA = SystolicArrayConfig.float16(
-    row = 2,
-    col = 2,
+  val fp16ConfigReuseA = Float16Config(
+    SystolicArraySize.defaultSystolicArraySize,
     dataflow = Dataflow.ReuseA
   )
 
@@ -262,8 +261,9 @@ object Float16SystolicArrayTest extends App {
     .withConfig(spinalConfig)
     .withFstWave
     .workspaceName("FP16_ReuseA_Test")
-    .compile(Float16SystolicArrayTyped(fp16ConfigReuseA))
+    .compile(SystolicArray(fp16ConfigReuseA))
     .doSim { dut =>
+
       dut.clockDomain.forkStimulus(10, resetCycles = 2)
 
       // Initialize

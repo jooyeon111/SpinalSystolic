@@ -15,17 +15,17 @@ class DeskewBufferReuseC[T <: Data](
   assert(arrayConfig.dataflow == Dataflow.ReuseC, "only Resue C systolic array can use this deskewing")
   setDefinitionName(s"${TileType.TypeC}_DeskewBuffer")
 
-  val numPort = arrayConfig.row + arrayConfig.col - 1
+  val numPort = arrayConfig.size.row + arrayConfig.size.col - 1
 
   val io = new Bundle {
     val input = in Vec(HardType(portType), numPort)
     val output = out Vec(HardType(portType), numPort)
   }
 
-  for( i <- 0 until arrayConfig.row + arrayConfig.col - 1) {
+  for( i <- 0 until arrayConfig.size.row + arrayConfig.size.col - 1) {
 
-    val depth = if (i < arrayConfig.row - 1) {
-      arrayConfig.row - i - 1
+    val depth = if (i < arrayConfig.size.row - 1) {
+      arrayConfig.size.row - i - 1
     } else 0
 
     io.output(i) := Delay(io.input(i), depth)

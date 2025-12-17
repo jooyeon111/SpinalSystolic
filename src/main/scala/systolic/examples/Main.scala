@@ -22,9 +22,11 @@ object Main extends App {
   // ============================================================
   println("=== Generating Signed Integer Systolic Array ===")
 
-  val intConfig = SystolicArrayConfig.signedInteger(
-    row = 16,
-    col = 16,
+  val intConfig = SignedIntConfig(
+    size = SystolicArraySize(
+      row = 16,
+      col = 16
+    ),
     dataflow = Dataflow.ReuseB,
     bitWidthA = 8,
     bitWidthB = 8,
@@ -32,35 +34,33 @@ object Main extends App {
   )
 
   spinalConfig.generateVerilog(SystolicArray(intConfig))
-  println(s"Generated: SInt_${intConfig.dataflow}_SystolicArray_${intConfig.row}x${intConfig.col}")
+  println(s"Generated: SInt_${intConfig.dataflow}_SystolicArray_${intConfig.size.row}x${intConfig.size.col}")
 
   // ============================================================
   // Example 2: BFloat16 Systolic Array with FP32 Accumulation
   // ============================================================
   println("\n=== Generating BFloat16 Systolic Array ===")
 
-  val bf16Config = SystolicArrayConfig.bfloat16(
-    row = 4,
-    col = 4,
+  val bf16Config = BFloat16Config(
+    size = SystolicArraySize.defaultSystolicArraySize,
     dataflow = Dataflow.ReuseC
   )
 
   spinalConfig.generateVerilog(SystolicArray(bf16Config))
-  println(s"Generated: BF16_${bf16Config.dataflow}_SystolicArray_${bf16Config.row}x${bf16Config.col}")
+  println(s"Generated: BF16_${bf16Config.dataflow}_SystolicArray_${bf16Config.size.row}x${bf16Config.size.col}")
 
   // ============================================================
   // Example 3: FP16 Systolic Array with FP32 Accumulation
   // ============================================================
   println("\n=== Generating FP16 Systolic Array ===")
 
-  val fp16Config = SystolicArrayConfig.float16(
-    row = 4,
-    col = 4,
+  val fp16Config = Float16Config(
+    size = SystolicArraySize.defaultSystolicArraySize,
     dataflow = Dataflow.ReuseC
   )
 
   spinalConfig.generateVerilog(SystolicArray(fp16Config))
-  println(s"Generated: FP16_${fp16Config.dataflow}_SystolicArray_${fp16Config.row}x${fp16Config.col}")
+  println(s"Generated: FP16_${fp16Config.dataflow}_SystolicArray_${fp16Config.size.row}x${fp16Config.size.col}")
 
   // ============================================================
   // Example 4: All dataflow variants comparison
@@ -69,12 +69,12 @@ object Main extends App {
 
   for (dataflow <- Seq(Dataflow.ReuseA, Dataflow.ReuseB, Dataflow.ReuseC)) {
     // BF16 variant
-    val bf16 = SystolicArrayConfig.bfloat16(4, 4, dataflow)
+    val bf16 = BFloat16Config(SystolicArraySize.defaultSystolicArraySize, dataflow)
     spinalConfig.generateVerilog(SystolicArray(bf16))
     println(s"Generated: BF16_${dataflow}_SystolicArray_4x4")
 
     // FP16 variant
-    val fp16 = SystolicArrayConfig.float16(4, 4, dataflow)
+    val fp16 = Float16Config(SystolicArraySize.defaultSystolicArraySize, dataflow)
     spinalConfig.generateVerilog(SystolicArray(fp16))
     println(s"Generated: FP16_${dataflow}_SystolicArray_4x4")
   }
