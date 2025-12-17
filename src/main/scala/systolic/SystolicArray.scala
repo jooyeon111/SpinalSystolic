@@ -390,34 +390,57 @@ class SystolicArray[InputType <: Data, AccType <: Data](
   }
 
   //TODO recode helper functions
-  private def getOutputIndex(r: Int, c: Int): Int = {
-    if (r == 0 && c == 0) {
-      0
-    } else if (r > 0 && r < arrayConfig.size.row && c == 0) {
-      r
-    } else if (r == arrayConfig.size.row - 1 && c > 0 && c < arrayConfig.size.col - 1) {
-      arrayConfig.size.row + c - 1
-    } else if (r == arrayConfig.size.row - 1 && c == arrayConfig.size.col - 1) {
-      arrayConfig.size.row + arrayConfig.size.col - 2
-    } else {
-      throw new Exception(s"Invalid output position: ($r, $c)")
-    }
+
+  private def canConnectDiagonally(r: Int, c: Int): Boolean = {
+//    val isRightEdgeExceptLast = (0 <= r && r < arrayConfig.size.row - 1 && c == arrayConfig.size.col - 1)
+//    val isTopEdgeExceptFirst = (r == 0 && 0 < c && c < arrayConfig.size.col - 1)
+//    val isMiddle = (0 < r && r < arrayConfig.size.row - 1 && 0 < c && c < arrayConfig.size.col - 1)
+//
+//    isRightEdgeExceptLast || isTopEdgeExceptFirst || isMiddle
+
+    val hasNextRow = r + 1 < arrayConfig.size.row
+    val hasPrevColumn = c >= 1
+    hasNextRow && hasPrevColumn
   }
 
   private def isOutputPosition(r: Int, c: Int): Boolean = {
-    val isFirstElement = r == 0 && c == 0
-    val isLeftOrBottomEdge = (0 < r && r < arrayConfig.size.row && c == 0) ||
-      (r == arrayConfig.size.row - 1 && 0 < c && c < arrayConfig.size.col - 1)
-    val isLastElement = r == arrayConfig.size.row - 1 && c == arrayConfig.size.col - 1
+//    val isFirstElement = r == 0 && c == 0
+//    val isLeftOrBottomEdge = (0 < r && r < arrayConfig.size.row && c == 0) ||
+//      (r == arrayConfig.size.row - 1 && 0 < c && c < arrayConfig.size.col - 1)
+//    val isLastElement = r == arrayConfig.size.row - 1 && c == arrayConfig.size.col - 1
+//
+//    isFirstElement || isLeftOrBottomEdge || isLastElement
 
-    isFirstElement || isLeftOrBottomEdge || isLastElement
+    val onLeftEdge = c == 0
+    val onBottomEdge = r == arrayConfig.size.row - 1 && c > 0
+    onLeftEdge || onBottomEdge
   }
 
-  private def canConnectDiagonally(r: Int, c: Int): Boolean = {
-    val isRightEdgeExceptLast = (0 <= r && r < arrayConfig.size.row - 1 && c == arrayConfig.size.col - 1)
-    val isTopEdgeExceptFirst = (r == 0 && 0 < c && c < arrayConfig.size.col - 1)
-    val isMiddle = (0 < r && r < arrayConfig.size.row - 1 && 0 < c && c < arrayConfig.size.col - 1)
+  private def getOutputIndex(r: Int, c: Int): Int = {
+//    if (r == 0 && c == 0) {
+//      0
+//    } else if (r > 0 && r < arrayConfig.size.row && c == 0) {
+//      r
+//    } else if (r == arrayConfig.size.row - 1 && c > 0 && c < arrayConfig.size.col - 1) {
+//      arrayConfig.size.row + c - 1
+//    } else if (r == arrayConfig.size.row - 1 && c == arrayConfig.size.col - 1) {
+//      arrayConfig.size.row + arrayConfig.size.col - 2
+//    } else {
+//      throw new Exception(s"Invalid output position: ($r, $c)")
+//    }
 
-    isRightEdgeExceptLast || isTopEdgeExceptFirst || isMiddle
+    val onLeftEdge = c == 0
+
+    if(onLeftEdge){
+      r
+    } else {
+      (arrayConfig.size.row - 1) + c
+    }
+
   }
+
+
+
+
+
 }
