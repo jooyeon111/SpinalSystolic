@@ -92,7 +92,7 @@ class ProcessingElement[InputType <: Data, AccType <: Data](
   private def captureInput(input: InputType, inputCaptureEnable: Bool, zeroValue: InputType): InputType = {
     RegNextWhen(
       next = input,
-      cond = inputCaptureEnable,
+      cond = !inputCaptureEnable,
       init = zeroValue
     )
   }
