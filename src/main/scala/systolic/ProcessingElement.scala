@@ -69,6 +69,8 @@ class ProcessingElement[InputType <: Data, AccType <: Data](
                                   implicit val portType: PortTypeProvider[InputType, AccType],
 ) extends Component {
 
+  import arithmetic._
+
   val io = new Bundle {
 
     val inputA = in (portType.createInputTypeA)
@@ -101,7 +103,8 @@ class ProcessingElement[InputType <: Data, AccType <: Data](
   }
 
   private def multiply(inputA : InputType, inputB : InputType): AccType = {
-    arithmetic.multiply(inputA, inputB)
+//    arithmetic.multiply(inputA, inputB)
+    inputA * inputB
   }
 
   dataflow match {
@@ -153,11 +156,13 @@ class ProcessingElement[InputType <: Data, AccType <: Data](
 
     val zero = portType.zeroPeOutputTypeC(index)
     val partialSum = Reg(portType.createPeOutputTypeC(index)) init zero
+    val outputType = portType.createPeOutputTypeC(index)
 
     val accumulatedValue = Mux(
       io.resetPartialC,
       product,
-      arithmetic.addResize(product, partialSum, portType.createPeOutputTypeC(index).getBitsWidth)
+      (product + partialSum).resizeTo(outputType)
+//      arithmetic.addResize(product, partialSum, portType.createPeOutputTypeC(index).getBitsWidth)
     )
 
     partialSum := accumulatedValue
@@ -172,10 +177,11 @@ class ProcessingElement[InputType <: Data, AccType <: Data](
 
   private def addInputC(multiplyResult: AccType): AccType = {
     val zero = portType.zeroPeOutputTypeC(index)
-    val outputWidth = portType.createPeOutputTypeC(index).getBitsWidth
+    val outputType = portType.createPeOutputTypeC(index)
 
     if(portEnableMask.withInputPortC){
-      RegNext(arithmetic.addResize(multiplyResult, io.inputC, outputWidth), init = zero)
+      RegNext((multiplyResult + io.inputC).resizeTo(outputType), init = zero)
+//      RegNext(arithmetic.addResize(multiplyResult, io.inputC, outputWidth), init = zero)
     } else {
       RegNext(multiplyResult.resized, init = zero)
     }

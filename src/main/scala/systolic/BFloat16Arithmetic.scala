@@ -255,22 +255,22 @@ object BFloat16Arithmetic {
     result
   }
 
-  implicit val bf16Fp32Arithmetic: Arithmetic[BFloat16, Float32] = new Arithmetic[BFloat16, Float32] {
-
-    override def multiply(inputA: BFloat16, inputB: BFloat16): Float32 =
-      BFloat16Arithmetic.multiply(inputA, inputB)
-
-    override def add(input0: Float32, input1: Float32): Float32 = BFloat16Arithmetic.add(input0, input1)
-
-    override def addResize(input0: Float32, input1: Float32, targetWidth: Int): Float32 = {
-      require(targetWidth == 32, "FP32 accumulation must have width 32")
-      add(input0, input1)
-    }
-
-    override def zeroInput(width: Int): BFloat16 = BFloat16.zero
-    override def zeroAccumulation(width: Int): Float32 = Float32.zero
-  }
-
+//  implicit val bf16Fp32Arithmetic: Arithmetic[BFloat16, Float32] = new Arithmetic[BFloat16, Float32] {
+//
+//    override def multiply(inputA: BFloat16, inputB: BFloat16): Float32 =
+//      BFloat16Arithmetic.multiply(inputA, inputB)
+//
+//    override def add(input0: Float32, input1: Float32): Float32 = BFloat16Arithmetic.add(input0, input1)
+//
+//    override def addResize(input0: Float32, input1: Float32, targetWidth: Int): Float32 = {
+//      require(targetWidth == 32, "FP32 accumulation must have width 32")
+//      add(input0, input1)
+//    }
+//
+//    override def zeroInput(width: Int): BFloat16 = BFloat16.zero
+//    override def zeroAccumulation(width: Int): Float32 = Float32.zero
+//  }
+//
 
 
 

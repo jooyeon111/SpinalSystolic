@@ -112,23 +112,23 @@ object Float16Arithmetic {
   def add(a: Float32, b: Float32): Float32 = {
     BFloat16Arithmetic.add(a, b)
   }
-
-  /**
-   * Implicit arithmetic instance for use with the systolic array
-   */
-  implicit val fp16Fp32Arithmetic: Arithmetic[Float16, Float32] = new Arithmetic[Float16, Float32] {
-
-    override def multiply(inputA: Float16, inputB: Float16): Float32 = Float16Arithmetic.multiply(inputA, inputB)
-    override def add(input0: Float32, input1: Float32): Float32 = Float16Arithmetic.add(input0, input1)
-    override def addResize(input0: Float32, input1: Float32, targetWidth: Int): Float32 = {
-      require(targetWidth == 32, "FP32 accumulation must have width 32")
-      Float16Arithmetic.add(input0, input1)
-    }
-
-    override def zeroInput(width: Int): Float16 = Float16.zero
-    override def zeroAccumulation(width: Int): Float32 = Float32.zero
-
-  }
+//
+//  /**
+//   * Implicit arithmetic instance for use with the systolic array
+//   */
+//  implicit val fp16Fp32Arithmetic: Arithmetic[Float16, Float32] = new Arithmetic[Float16, Float32] {
+//
+//    override def multiply(inputA: Float16, inputB: Float16): Float32 = Float16Arithmetic.multiply(inputA, inputB)
+//    override def add(input0: Float32, input1: Float32): Float32 = Float16Arithmetic.add(input0, input1)
+//    override def addResize(input0: Float32, input1: Float32, targetWidth: Int): Float32 = {
+//      require(targetWidth == 32, "FP32 accumulation must have width 32")
+//      Float16Arithmetic.add(input0, input1)
+//    }
+//
+//    override def zeroInput(width: Int): Float16 = Float16.zero
+//    override def zeroAccumulation(width: Int): Float32 = Float32.zero
+//
+//  }
 
 }
 
