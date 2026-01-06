@@ -216,6 +216,7 @@ class SystolicArray[InputType <: Data, AccType <: Data](
       portEnableMask = portEnableMask,
       dataflow = arrayConfig.dataflow
     )(arithmetic, portType)
+
   }
 
   wireA()

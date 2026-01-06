@@ -63,7 +63,6 @@ object ProcessingElement {
 class ProcessingElement[InputType <: Data, AccType <: Data](
                                   val index: ProcessingElementIndex,
                                   val portEnableMask: PortEnableMask,
-//                                  val arrayConfig: SystolicArrayConfig,
                                   val dataflow: Dataflow.Value,
                                   )(
                                   implicit val arithmetic: Arithmetic[InputType, AccType],
@@ -155,11 +154,16 @@ class ProcessingElement[InputType <: Data, AccType <: Data](
     val zero = portType.zeroPeOutputTypeC(index)
     val partialSum = Reg(portType.createPeOutputTypeC(index)) init zero
 
-    val accumulatedValue = Mux(io.resetPartialC, product, arithmetic.addResize(product, partialSum, portType.createPeOutputTypeC(index).getBitsWidth))
+    val accumulatedValue = Mux(
+      io.resetPartialC,
+      product,
+      arithmetic.addResize(product, partialSum, portType.createPeOutputTypeC(index).getBitsWidth)
+    )
+
     partialSum := accumulatedValue
 
     if(portEnableMask.withInputPortC){
-      io.outputC := Mux(io.outputCaptureEnableC, partialSum, io.inputC)
+      io.outputC := RegNext(Mux(io.outputCaptureEnableC, partialSum, io.inputC), zero)
     } else {
       io.outputC := partialSum
     }

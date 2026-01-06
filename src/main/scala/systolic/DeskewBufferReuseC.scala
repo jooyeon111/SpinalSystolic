@@ -24,9 +24,17 @@ class DeskewBufferReuseC[T <: Data](
 
   for( i <- 0 until arrayConfig.size.row + arrayConfig.size.col - 1) {
 
-    val depth = if (i < arrayConfig.size.row - 1) {
+//    val depth = if (i < arrayConfig.size.row - 1) {
+//      arrayConfig.size.row - i - 1
+//    } else 0
+
+    val depth = if (i == 0) {
+      arrayConfig.size.row  // Output 0만 16으로
+    } else if (i < arrayConfig.size.row - 1) {
       arrayConfig.size.row - i - 1
-    } else 0
+    } else {
+      0
+    }
 
     io.output(i) := Delay(io.input(i), depth)
 

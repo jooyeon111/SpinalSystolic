@@ -27,10 +27,10 @@ object Main extends App {
       row = 16,
       col = 16
     ),
-    dataflow = Dataflow.ReuseB,
+    dataflow = Dataflow.ReuseC,
     bitWidthA = 8,
     bitWidthB = 8,
-//    bitWidthOutputC = Some(32)
+    bitWidthOutputC = Some(26)
   )
 
   spinalConfig.generateVerilog(SystolicArray(intConfig))
