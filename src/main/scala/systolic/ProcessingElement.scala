@@ -152,7 +152,7 @@ class ProcessingElement[InputType <: Data, AccType <: Data](
     if (portEnableMask.withOutputPortB)
       io.outputB := registerInput(io.inputB, portType.zeroInputB)
 
-    val product = multiply(io.inputA, io.inputB)
+    val product = io.inputA * io.inputB
 
     val zero = portType.zeroPeOutputTypeC(index)
     val partialSum = Reg(portType.createPeOutputTypeC(index)) init zero
@@ -183,7 +183,7 @@ class ProcessingElement[InputType <: Data, AccType <: Data](
       RegNext((multiplyResult + io.inputC).resizeTo(outputType), init = zero)
 //      RegNext(arithmetic.addResize(multiplyResult, io.inputC, outputWidth), init = zero)
     } else {
-      RegNext(multiplyResult.resized, init = zero)
+      RegNext(multiplyResult.resizeTo(outputType), init = zero)
     }
   }
 

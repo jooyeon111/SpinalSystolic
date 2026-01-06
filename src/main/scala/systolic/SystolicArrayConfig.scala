@@ -15,12 +15,12 @@ trait SystolicArrayConfig {
 case class BFloat16Config(
                            size: SystolicArraySize,
                            dataflow: Dataflow.Value,
-                         ) extends SystolicArrayConfig
+) extends SystolicArrayConfig
 
 case class Float16Config(
                           size: SystolicArraySize,
                           dataflow: Dataflow.Value
-                        ) extends SystolicArrayConfig
+) extends SystolicArrayConfig
 
 case class SignedIntConfig(
                             size: SystolicArraySize,
@@ -28,7 +28,7 @@ case class SignedIntConfig(
                             bitWidthA: Int,
                             bitWidthB: Int,
                             bitWidthOutputC: Option[Int] = None
-                          ) extends SystolicArrayConfig
+) extends SystolicArrayConfig
 
 case class UnsignedIntConfig(
                                size: SystolicArraySize,
@@ -36,4 +36,4 @@ case class UnsignedIntConfig(
                                bitWidthA: Int,
                                bitWidthB: Int,
                                bitWidthOutputC: Option[Int] = None
-                            ) extends SystolicArrayConfig
+) extends SystolicArrayConfig
