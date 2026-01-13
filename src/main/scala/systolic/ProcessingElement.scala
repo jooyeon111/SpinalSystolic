@@ -170,7 +170,7 @@ class ProcessingElement[InputType <: Data, AccType <: Data](
     if(portEnableMask.withInputPortC){
       io.outputC := RegNext(Mux(io.outputCaptureEnableC, partialSum, io.inputC), zero)
     } else {
-      io.outputC := partialSum
+      io.outputC := RegNext(partialSum, zero)
     }
 
   }
